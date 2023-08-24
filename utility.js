@@ -6,7 +6,7 @@ let channel_id_private =
   "arn:aws:ivschat:us-east-1:701253760804:room/MjmBSFqWGelM";
 const ingest_key = "562d3781dc12.global-contribute.live-video.net";
 const stream_key = "sk_us-east-1_2S1fpt3YXCr7_trBM0OuyIhazGXENgeXlGJE4mACmfm";
-
+let total_donations = 0;
 const streamArnTemp = "arn:aws:ivs:us-east-1:701253760804:channel/QUO1ToasohoT";
 let privateStreamPrice = 1;
 let channelConnection;
@@ -174,6 +174,33 @@ const addPrivateRequest = (user, credits) => {
   newRequest.appendChild(acceptButton);
   newRequest.appendChild(declineButton);
   document.getElementById("privateRequestDiv").appendChild(newRequest);
+};
+const updateTipRelatedUI = async () => {
+  const tips = await get_donations(
+    region,
+    secretAccessKey,
+    secretAccessId,
+    channel_id
+  );
+  total_donations = 0;
+  let highest_tipper = "";
+  let highest_tip = 0;
+  let recent_tipper = tips[0].name.S;
+  tips.forEach(tip => {
+    total_donations += parseFloat(tip.donation.S);
+    if (parseFloat(tip.donation.S) > highest_tip) {
+      highest_tipper = tip.name.S;
+      highest_tip = parseFloat(tip.donation.S);
+    }
+  });
+  document.getElementById("latest-tipper-name-span").innerText = recent_tipper;
+  document.getElementById("highest-tipper-name-span").innerText =
+    highest_tipper;
+
+  document.getElementById("tip-stat").innerText = `Tips: ${total_donations}$`;
+  console.log({ total_donations });
+  console.log({ tips });
+  renderGoals();
 };
 const declinePrivateRequest = async () => {
   console.log(privateRequests[event.srcElement.id]);
@@ -448,6 +475,9 @@ const createChannel = async () => {
     );
   }
   const { name } = channel_details;
+  // document.getElementById("room-rules").innerHTML =
+  //   "<h4 style='margin:0;'>Room Rules</h4>";
+  document.getElementById("room-rules").innerHTML = roomRules;
   console.log({ name });
   document.getElementsByClassName("stream-title")[0].innerText = name;
 
@@ -506,6 +536,12 @@ const socketEventListener = () => {
         document.getElementsByClassName(
           "viewers-count"
         )[0].innerText = `${response.stream.viewerCount} watching`;
+        document.getElementById(
+          "views-stat"
+        ).innerText = `${response.stream.viewerCount} watching`;
+        document.getElementById(
+          "health-stat"
+        ).innerText = `Stream Health: ${response.stream.health}`;
         // document.getElementById(
         //   "viewer-count"
         // ).innerHTML = `<p>Viewer Count (EXPERIMENTAL): ${response.stream.viewerCount}</p>`;
@@ -534,6 +570,16 @@ const socketEventListener = () => {
     // }
     if (data.Type == "EVENT" && data.Attributes?.type == "notification") {
       alert(`NOTIFICATION:: ${data.EventName}`);
+    }
+    if (data.Type == "EVENT" && data.EventName == "room-rules-update") {
+      handleRoomRulesUpdate(data.Attributes["room-rules"]);
+    }
+    if (data.Type == "EVENT" && data.EventName == "goals-updated") {
+      renderGoals();
+      createMessage("|| Goals Updated By Streamer ||");
+    }
+    if (data.Type == "EVENT" && data.EventName == "tip-event") {
+      updateTipRelatedUI();
     }
     if (data.Type == "EVENT" && data.EventName == "playback-request") {
       console.log("playback-request received");
@@ -569,6 +615,13 @@ function setError(message) {
   // const errorEl = document.getElementById("error");
   // errorEl.innerHTML = message;
 }
+const handleRoomRulesUpdate = rules => {
+  roomRules = rules;
+  roomRules = roomRules.replace(/= @ _ \/ -/g, "<br>");
+  document.getElementById(
+    "room-rules"
+  ).innerHTML = `<p style='margin:0;font-size:16px;'>${roomRules}</p>`;
+};
 async function handleVideoDeviceSelect() {
   console.log("handleVideoDeviceSelect");
   const id = "camera";
@@ -911,65 +964,6 @@ const updatePrivateStreamPrice = async () => {
       newPrice: newPrice,
     }
   );
-  document.getElementById("modal").remove();
-};
-const editPrivateStreamPrice = () => {
-  const modalContainer = document.createElement("div");
-  modalContainer.setAttribute("id", "modal");
-  modalContainer.setAttribute("class", "modal");
-  const modalContent = document.createElement("div");
-  modalContent.setAttribute("class", "modal-content");
-  modalContainer.style.display = "block";
-  window.onclick = function (event) {
-    if (event.target == modalContainer) {
-      modalContainer.remove();
-    }
-  };
-  modalContainer.appendChild(modalContent);
-  modalContent.innerHTML = `
-  <div>
-    <h1>Set Private Stream Costs</h1>
-    <div style="display:flex;">
-      <label for='private-stream-price'>Private Stream Cost (Per 30 Seconds)</label>
-      <input id='private-stream-price' type='number' value='${parseInt(
-        privateStreamPrice
-      )}'/>
-    </div>
-    <div style="margin-top:10px">
-      <button class='stream-buttons' onclick='updatePrivateStreamPrice()'>Update Price</button>
-      <button class='stream-buttons' onclick="(()=>{document.getElementById('modal').remove()})();">Close</button>
-    </div>
-  </div>
-  `;
-  document.body.appendChild(modalContainer);
-};
-const showGoalsModal = () => {
-  const modalContainer = document.createElement("div");
-  modalContainer.setAttribute("id", "modal");
-  modalContainer.setAttribute("class", "modal");
-  const modalContent = document.createElement("div");
-  modalContent.setAttribute("class", "modal-content");
-  modalContainer.style.display = "block";
-  window.onclick = function (event) {
-    if (event.target == modalContainer) {
-      modalContainer.remove();
-    }
-  };
-  modalContainer.appendChild(modalContent);
-  modalContent.innerHTML = `
-  <div>
-    <h1>Stream Goals</h1>
-    <p>INFO: Goals are automatically sorted by amount and shown to the viewers. After changing, click save button for changes to take effect.</p>
-    <div id="goals"></div>
-    <button class='stream-buttons' onclick="addGoalFunction()">Add A Goal</button>
-    <div>
-      <button class='stream-buttons' onclick='saveAllGoals()'>Save</button>
-      <button class='stream-buttons' onclick="(()=>{document.getElementById('modal').remove()})();">Close</button>
-    </div>
-  </div>
-  `;
-  document.body.appendChild(modalContainer);
-  renderGoals();
 };
 const addGoalFunction = () => {
   const goalContainer = document.createElement("div");
@@ -982,34 +976,48 @@ const addGoalFunction = () => {
   document.getElementById("goals").appendChild(goalContainer);
   goalCount++;
 };
-const renderGoals = () => {
-  goalCount = 0;
-  let sortedGoals = goals.sort((a, b) => {
-    return a.amount - b.amount;
+const renderGoals = async () => {
+  const goals = await get_goals(
+    region, // Replace with your chatroom region
+    secretAccessKey, // Replace with your secret access key
+    secretAccessId, // Replace with your secret key id
+    "oliverdb"
+  );
+  console.log({ goals });
+  const sortedByAmount = goals.sort((a, b) => {
+    return parseInt(b.amount.N) - parseInt(a.amount.N);
   });
-  sortedGoals.forEach(goal => {
-    const goalContainer = document.createElement("div");
-    goalContainer.setAttribute("class", "goalContainer");
-    goalContainer.innerHTML = `
-  <input id='name${goalCount}' type="text" placeholder="Goal Name"s/>
-  <input id='amount${goalCount}' type="number" placeholder="Goal Amount" />
-  <button class='stream-buttons' id='${goalCount}' onclick="removeGoalFunction(this)">Delete</button>
-  <button class='stream-buttons' id='completed${goalCount}' onclick="markGoalComplete(this)">${
-      goal.completed ? "Completed" : "Manually Mark Complete"
-    }</button>
-       
-  
-  `;
-    document.getElementById("goals").appendChild(goalContainer);
-    document
-      .getElementById(`name${goalCount}`)
-      .setAttribute("value", `${goal.name}`);
-    document
-      .getElementById(`amount${goalCount}`)
-      .setAttribute("value", `${goal.amount}`);
+  // const goalContainer = document.getElementById("goals");
+  // goalContainer.innerHTML = "";
+  // console.log({ sortedByAmount });
+  for (let i = sortedByAmount.length - 1; i >= 0; i--) {
+    console.log({ tst: sortedByAmount[i] });
+    if (parseInt(sortedByAmount[i].amount.N) <= total_donations) continue;
+    document.getElementById("progress").style.display = "block";
+    if (sortedByAmount[i].completed.N == "0") {
+      document.getElementsByClassName("progress-status")[0].innerHTML = `
+        <span class="progress-percentage">${total_donations}
+        </span>
+                    /
+                    <span class="progress-tokens">${sortedByAmount[i].amount.N}</span>
+                    Tokens
+        `;
 
-    goalCount++;
-  });
+      document.getElementsByClassName("goal-description")[0].innerText =
+        "Goal: " + sortedByAmount[i].name.S;
+
+      updateProgressBar(total_donations, parseInt(sortedByAmount[i].amount.N));
+      break;
+    } else {
+      document.getElementsByClassName("progress-status")[0].innerHTML = `
+        <span class="progress-percentage">Complete</span>`;
+
+      document.getElementsByClassName("goal-description")[0].innerText =
+        "Goal: " + sortedByAmount[i].name.S;
+
+      updateProgressBar(total_donations, parseInt(sortedByAmount[i].amount.N));
+    }
+  }
 };
 const saveAllGoals = async () => {
   goals = [];
@@ -1025,14 +1033,13 @@ const saveAllGoals = async () => {
   }
   console.log({ goals });
   await update_goal(region, secretAccessKey, secretAccessId, "oliverdb", goals);
-  await send_event(
+  send_event(
     region, // Replace with your chatroom region
     secretAccessKey, // Replace with your secret access key
     secretAccessId, // Replace with your secret key id
     channel_id,
     "goals-updated"
   );
-  document.getElementById("modal").remove();
 };
 const removeGoalFunction = el => {
   const index = el.id;
@@ -1490,10 +1497,7 @@ const saveNewName = async () => {
     alert("Please enter a name less than 15 characters");
     return;
   }
-  if (
-    newName == document.getElementById("heading-name").innerText.split(": ")[1]
-  ) {
-    document.getElementById("modal").remove();
+  if (newName == document.getElementsByClassName("stream-title")[0].innerText) {
     return;
   }
   try {
@@ -1518,64 +1522,7 @@ const saveNewName = async () => {
       name: newName,
     }
   );
-  document.getElementById(
-    "heading-name"
-  ).innerText = `Channel Name: ${newName}`;
-  document.getElementById("modal").remove();
-  console.log({ response });
-};
-const renameChannel = async () => {
-  const modalContainer = document.createElement("div");
-  modalContainer.setAttribute("id", "modal");
-  modalContainer.setAttribute("class", "modal");
-  const modalContent = document.createElement("div");
-  modalContent.setAttribute("class", "modal-content");
-  modalContainer.style.display = "block";
-  window.onclick = function (event) {
-    if (event.target == modalContainer) {
-      modalContainer.remove();
-    }
-  };
-  modalContainer.appendChild(modalContent);
-  modalContent.innerHTML = `<div><h2>Edit Channel Name</h2>
-  <input id="channel-rename-field" value="${
-    document.getElementById("heading-name").innerText.split(": ")[1]
-  }"/>
-  <button onclick="saveNewName();">Save</button>
-  </div>`;
-  document.body.appendChild(modalContainer);
-};
-const manageTags = () => {
-  const modalContainer = document.createElement("div");
-  modalContainer.setAttribute("id", "modal");
-  modalContainer.setAttribute("class", "modal");
-  const modalContent = document.createElement("div");
-  modalContent.setAttribute("class", "modal-content");
-  modalContainer.style.display = "block";
-  window.onclick = function (event) {
-    if (event.target == modalContainer) {
-      modalContainer.remove();
-    }
-  };
-  modalContainer.appendChild(modalContent);
-  modalContent.innerHTML = `
-  <div>
-    <h1>Add & Remove Tags</h1>
-    <h3>Available Tags</h3>
-    <div id="available-tags" style="display:flex;flex-wrap:wrap;">
-    </div>
-    <h3>Selected Tags</h3>
-    <div id="selected-tags" style="display:flex;flex-wrap:wrap;">
-    </div>
-    <div style="margin-top:10px">
-      <button class='stream-buttons' onclick='updateTagsInDb();'>Save Tags</button>
-      <button class='stream-buttons' onclick="(()=>{document.getElementById('modal').remove()})();">Close</button>
-    </div>
-  </div>
-    `;
-  document.body.appendChild(modalContainer);
-  renderAvailableTags();
-  renderSelectedTags();
+  document.getElementsByClassName("stream-title")[0].innerText = newName;
 };
 const updateTagsInDb = async () => {
   await removeExistingTags();
@@ -1604,8 +1551,6 @@ const updateTagsInDb = async () => {
       selectedTags[i]
     );
   }
-
-  document.getElementById("modal").remove();
 };
 const renderAvailableTags = () => {
   const availableTags = document.getElementById("available-tags");
@@ -1654,6 +1599,35 @@ const renderSelectedTags = () => {
     };
     SelctedTagsMarkup.appendChild(tag);
   }
+};
+const showGoalsInSettings = () => {
+  goalCount = 0;
+  let sortedGoals = goals.sort((a, b) => {
+    return a.amount - b.amount;
+  });
+  sortedGoals.forEach(goal => {
+    const goalContainer = document.createElement("div");
+    goalContainer.setAttribute("class", "goalContainer");
+    goalContainer.innerHTML = `
+  <input id='name${goalCount}' type="text" placeholder="Goal Name"s/>
+  <input id='amount${goalCount}' type="number" placeholder="Goal Amount" />
+  <button class='stream-buttons' id='${goalCount}' onclick="removeGoalFunction(this)">Delete</button>
+  <button class='stream-buttons' id='completed${goalCount}' onclick="markGoalComplete(this)">${
+      goal.completed ? "Completed" : "Manually Mark Complete"
+    }</button>
+       
+  
+  `;
+    document.getElementById("goals").appendChild(goalContainer);
+    document
+      .getElementById(`name${goalCount}`)
+      .setAttribute("value", `${goal.name}`);
+    document
+      .getElementById(`amount${goalCount}`)
+      .setAttribute("value", `${goal.amount}`);
+
+    goalCount++;
+  });
 };
 const showDeviceSelectModal = () => {
   const prettyModal = document.createElement("div");
@@ -1746,5 +1720,128 @@ const deletePrettyModal = () => {
     document.getElementById("alert-popup").remove();
   }
 };
+const deleteScrollModal = () => {
+  if (document.getElementById("scroll-popup")) {
+    document.getElementById("scroll-popup").remove();
+  }
+};
+const escapeNewlines = str => {
+  return str.replace(/\n/g, "= @ _ / -");
+};
+const updateRoomRules = () => {
+  const roomRulesInput = document.getElementById("roomRulesInput");
+  roomRules = roomRulesInput.value;
+  console.log(roomRules);
+  const escapedRoomRules = escapeNewlines(roomRules);
+  update_room_rules(
+    region,
+    secretAccessKey,
+    secretAccessId,
+    channel_id,
+    escapedRoomRules
+  );
+};
+const saveSettings = async () => {
+  try {
+    await Promise.all([
+      saveNewName(),
+      updatePrivateStreamPrice(),
+      updateRoomRules(),
+      saveAllGoals(),
+      updateTagsInDb(),
+    ]);
+  } catch (err) {
+    console.log({ err });
+  }
+  deleteScrollModal();
+};
+const settingsModal = () => {
+  const prettyModal = document.createElement("div");
+  prettyModal.setAttribute("id", "scroll-popup");
+  prettyModal.classList.add("DuKSh");
+  prettyModal.classList.add("EJVsl");
+  prettyModal.classList.add("OtrSK");
+  prettyModal.classList.add("cNGwx");
+  prettyModal.classList.add("gsCWf");
+  prettyModal.style.backgroundColor = "rgba(0, 170, 255, 0.58)";
+  prettyModal.innerHTML = `
+  <!-- wrapper -->
+  <div class="GodhZ gsCWf EJVsl OtrSK CzomY">
+      <!-- container -->
+      <div class="ExGby HruDj">
+          <!-- header -->
+          <div class="tSrNa gsCWf EJVsl zsSLy">
+              <h1 class="USKIn">Stream Settings</h1>
+
+              <!-- buttons -->
+              <div class="wcrwV gsCWf EJVsl">
+                  <div class="AYaOY TNIio UYvZu gsCWf EJVsl OtrSK DeYlt">
+                      <svg onclick="deleteScrollModal()" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <g>
+                              <path d="M16 16L12 12M12 12L8 8M12 12L16 8M12 12L8 16" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                          </g>
+                      </svg>
+                  </div>
+              </div>
+          </div>
+
+          <!-- main-section -->
+          <div class="TImJU">
+              <!-- elements-container -->
+
+              
+              <div><h2
+              style="font-size: 18px;"
+              >Edit Channel Name</h2>
+              <input id="channel-rename-field" value="${
+                document.getElementsByClassName("stream-title")[0].innerText
+              }"/>
+              </div>
+
+              <div>
+              <h2 style="font-size: 18px;">Set Private Stream Costs (Per 30 Seconds)</h2>
+              <div style="display:flex;">
+                <input id='private-stream-price' type='number' value='${parseInt(
+                  privateStreamPrice
+                )}'/>
+              </div>
+            </div>
+
+            <div>
+              <h2 style="font-size: 18px;">Edit Room Rules</h2>
+              <textarea id="roomRulesInput">${roomRules}</textarea>
+            </div>
+
+
+            <div>
+              <h2 style="font-size: 18px;">Stream Goals</h2>
+              <p>INFO: Goals are automatically sorted by amount and shown to the viewers. After changing, click save button for changes to take effect.</p>
+              <div id="goals"></div>
+              <button class='stream-buttons' onclick="addGoalFunction()">Add A Goal</button>
+            </div>
+
+
+          <div>
+            <h2 style="font-size: 18px;">Add & Remove Tags</h2>
+            <h3 style="font-size: 16px;">Available Tags</h3>
+            <div id="available-tags" style="display:flex;flex-wrap:wrap;"></div>
+            <h3 style="font-size: 16px;">Selected Tags</h3>
+            <div id="selected-tags" style="display:flex;flex-wrap:wrap;"></div>
+          </div>
+          <hr/>
+          <div style="display:flex;">
+            <button class="AYaOY" onclick="saveSettings()">Save</button>
+            <button style="margin-left:10px;" onclick="deleteScrollModal()" class="AYaOY">Cancel</button>
+          </div>
+      </div>
+  </div>
+  `;
+  document.body.appendChild(prettyModal);
+  // document.getElementsByClassName("wrapper")[0].append(prettyModal);
+  showGoalsInSettings();
+  renderAvailableTags();
+  renderSelectedTags();
+};
+
 showDeviceSelectModal();
 init();

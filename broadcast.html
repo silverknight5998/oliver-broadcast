@@ -34,10 +34,12 @@
   </head>
   <body>
     <div class="stats-container">
-      <div class="stats"><span>Viewers: 5k watching</span></div>
-      <div class="stats"><span>Stream Health: HEALTHY</span></div>
-      <div class="stats"><span>Stream Type: PUBLIC</span></div>
-      <div class="stats"><span>Tips: 370$</span></div>
+      <div class="stats"><span id="views-stat">Viewers: 0 watching</span></div>
+      <div class="stats"><span id="health-stat">Stream Health:</span></div>
+      <div class="stats">
+        <span id="streamType-stat">Stream Type: PUBLIC</span>
+      </div>
+      <div class="stats"><span id="tip-stat">Tips: 0$</span></div>
       <!-- <div class="stats"><span>Stats 5</span></div> -->
     </div>
 
@@ -49,7 +51,7 @@
           <!-- New stream title container -->
           <div class="title-container">
             <h1 class="stream-title">New stream</h1>
-            <span class="viewers-count">6k watching</span>
+            <span class="viewers-count">0 watching</span>
           </div>
 
           <!-- image (video) container -->
@@ -122,15 +124,10 @@
                 id="audioTrackIconUnMute"
               ></i>
             </button>
-            <button
-              id="muteAudioButton"
-              class="button-1"
-              id="audioTrackIconUnMute"
-            >
+            <button class="button-1" onclick="settingsModal()">
               <i
                 style="font-family: 'Font Awesome 6 Free' !important"
                 class="fa-solid fa-gear"
-                id="audioTrackIconUnMute"
               ></i>
             </button>
           </div>
@@ -305,8 +302,12 @@
 
             <!-- chatbox-tip-container -->
             <div class="chatbox-tip-container">
-              <p class="chatbox-tip-text">Latest tipper: <span>xyz</span></p>
-              <p class="chatbox-tip-text">Highest tipper: <span>xyz</span></p>
+              <p class="chatbox-tip-text">
+                Latest tipper: <span id="latest-tipper-name-span"></span>
+              </p>
+              <p class="chatbox-tip-text">
+                Highest tipper: <span id="highest-tipper-name-span"></span>
+              </p>
             </div>
 
             <!-- message-container -->
@@ -635,24 +636,19 @@
               <!-- goal-section -->
               <div class="goal-container">
                 <h4 class="goal-description">
-                  Goal: Sing a song / 2000 tokens
+                  <!-- Goal: Sing a song / 2000 tokens -->
                 </h4>
-                <div class="progress">
+                <div id="progress" style="display: none" class="progress">
                   <div class="progress-bar-container">
                     <div class="progress-bar tRLtc"></div>
                   </div>
-                  <p class="progress-status">
-                    <span class="progress-percentage">10%</span>
-                    /
-                    <span class="progress-tokens">100</span>
-                    Tokens
-                  </p>
+                  <p class="progress-status"></p>
                 </div>
                 <div class="goal-tip">
                   <p class="goal-tip-text">
-                    Latest Tipper:
+                    <!-- Latest Tipper:
                     <span class="goal-tipper-name">abc</span>
-                    <span class="goal-tip-amount">10tk</span>
+                    <span class="goal-tip-amount">10tk</span> -->
                   </p>
                 </div>
               </div>
@@ -742,14 +738,7 @@
           <!-- rules-container -->
           <div class="rules-container tab-menu" id="rules-tab">
             <h1>Rules</h1>
-            <p>
-              Lorem ipsum dolor, sit amet consectetur adipisicing elit. Tempora
-              aspernatur commodi quam vero aperiam delectus culpa illum quod,
-              maiores in reiciendis rerum error laborum sit labore! Molestiae
-              reprehenderit soluta minima exercitationem minus voluptatum eius
-              nulla aspernatur dolore a quos adipisci, rerum eaque quo
-              asperiores libero autem, vitae optio! Fuga, dolor.
-            </p>
+            <p id="room-rules"></p>
           </div>
 
           <!-- mobile-chatbox -->

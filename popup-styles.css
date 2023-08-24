@@ -99,7 +99,7 @@ body {
 }
 
 #scroll-popup .TImJU {
-  overflow: hidden;
+  /* overflow: hidden; */
   display: flex;
   flex-direction: column;
   gap: 20px;
