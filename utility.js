@@ -56,8 +56,9 @@ const tagsList = [
 ];
 var selectedTags = [];
 var toBeDeletedTags = [];
+let muted = false;
 const insertPausePlaceholderIVS = () => {
-  const imagePath = "../assets/pause.jpeg";
+  const imagePath = "./assets/pause.jpeg";
   const img = new Image();
   img.src = imagePath;
   img.onload = function () {
@@ -72,10 +73,14 @@ const removePausePlaceholderIVS = () => {
   client.enableAudio();
 };
 const pauseChat = async () => {
+  console.log(document.getElementById("pauseChatButton").innerText);
   if (
     document.getElementById("pauseChatButton").innerText == "Continue Stream"
   ) {
     removePausePlaceholderIVS();
+    document.getElementById("streampause").style.display = "block";
+    document.getElementById("streamcontinue").style.display = "none";
+
     document.getElementById("pauseChatButton").innerText = "loading...";
     const response = await send_event(
       region,
@@ -88,7 +93,7 @@ const pauseChat = async () => {
     if (typeof element != "undefined" && element != null) {
       element.remove();
     }
-    document.getElementById("preview").style.display = "block";
+    // document.getElementById("preview").style.display = "block";
     await pause_continue_channel(
       region,
       secretAccessKey,
@@ -96,9 +101,9 @@ const pauseChat = async () => {
       channel_id,
       "not-paused"
     );
-    document.getElementById(
-      "streamStatus"
-    ).innerHTML = `<h4>Stream Status: Active (People Can Watch And Send Messages In Chat.)</h4>`;
+    // document.getElementById(
+    //   "streamStatus"
+    // ).innerHTML = `<h4>Stream Status: Active (People Can Watch And Send Messages In Chat.)</h4>`;
     console.log({
       response,
     });
@@ -106,6 +111,8 @@ const pauseChat = async () => {
     document.getElementById("sendButton").disabled = false;
   } else {
     insertPausePlaceholderIVS();
+    document.getElementById("streampause").style.display = "none";
+    document.getElementById("streamcontinue").style.display = "block";
     document.getElementById("pauseChatButton").innerText = "loading...";
     const response = await send_event(
       region, // Replace with your chatroom region
@@ -114,8 +121,8 @@ const pauseChat = async () => {
       channel_id,
       "pause-channel"
     );
-    document.getElementById("preview").style.display = "none";
-    insertImage("../assets/pause.jpeg");
+    // document.getElementById("preview").style.display = "none";
+    // insertImage("./assets/pause.jpeg");
     await pause_continue_channel(
       region, // Replace with your chatroom region
       secretAccessKey, // Replace with your secret access key
@@ -128,9 +135,9 @@ const pauseChat = async () => {
     });
     document.getElementById("pauseChatButton").innerText = "Continue Stream";
     document.getElementById("sendButton").disabled = true;
-    document.getElementById(
-      "streamStatus"
-    ).innerHTML = `<h4>Stream Status: Paused. (People can see you are active but can't watch or send messages)</h4>`;
+    // document.getElementById(
+    //   "streamStatus"
+    // ).innerHTML = `<h4>Stream Status: Paused. (People can see you are active but can't watch or send messages)</h4>`;
   }
 
   return;
@@ -142,7 +149,7 @@ const insertImage = src => {
   }
   const imageElement = document.createElement("img");
   const { width, height } = config.streamConfig.maxResolution;
-  imageElement.style = `width:${width}px;height:${height}px;`;
+  imageElement.style = `width:100%;height:${height}px;`;
   imageElement.setAttribute("id", "statusImage");
   imageElement.src = src;
   document.getElementById("stream-placeholder").appendChild(imageElement);
@@ -200,7 +207,7 @@ const openPrivateRequest = async () => {
     "private-channel-start"
   );
   document.getElementById("preview").style.display = "none";
-  insertImage("../assets/private.png");
+  insertImage("./assets/private.png");
   await pause_continue_channel(
     region, // Replace with your chatroom region
     secretAccessKey, // Replace with your secret access key
@@ -296,16 +303,16 @@ const sendFunction = async () => {
 // -----
 const endChat = async () => {
   clearInterval(updateViewerInterval);
-  document.getElementById("viewsSection").style.display = "none";
+  // document.getElementById("viewsSection").style.display = "none";
   channelConnection.close();
   channelConnection.removeEventListener("open", socketEventListener);
-  document.getElementById("endChatButton").innerText = "Ending...";
+  // document.getElementById("endChatButton").innerText = "Ending...";
   document.getElementById("endChatButton").disabled = true;
-  document.getElementById("goalsButton").disabled = true;
+  // document.getElementById("goalsButton").disabled = true;
   document.getElementById("sendButton").disabled = true;
-  document.getElementById("pauseChatButton").disabled = true;
-  document.getElementById("sendNotificationButton").disabled = true;
-  document.getElementById("manageTagsButton").disabled = true;
+  document.getElementById("pausebutton").disabled = true;
+  // document.getElementById("sendNotificationButton").disabled = true;
+  // document.getElementById("manageTagsButton").disabled = true;
   const erase_response = await erase_all_messages(
     region,
     secretAccessKey,
@@ -322,20 +329,20 @@ const endChat = async () => {
   );
   await delete_channel(region, secretAccessKey, secretAccessId, channel_id);
   document.getElementById("preview").style.display = "none";
-  document.getElementById("messages").innerHTML = "";
+  document.getElementsByClassName("message-container")[0].innerHTML = "";
   goals = [];
   // document.getElementById("tagsList").innerHTML = "";
-  insertImage("../assets/offline.jpeg");
-  document.getElementById(
-    "streamStatus"
-  ).innerHTML = `<h4>Stream Status: OFFLINE</h4>`;
+  insertImage("./assets/offline.jpeg");
+  // document.getElementById(
+  //   "streamStatus"
+  // ).innerHTML = `<h4>Stream Status: OFFLINE</h4>`;
 
   // const disabledHeading = document.createElement("h2");
   // disabledHeading.innerText = "Stream Ended";
   // document.getElementById("messageBox").appendChild(disabledHeading);
-  document.getElementById("endChatButton").innerText = "End Chat";
-  document.getElementById("messageBox").style.visibility = "hidden";
-  addRestartStreamControls();
+  // document.getElementById("endChatButton").innerText = "End Chat";
+  // document.getElementById("messageBox").style.visibility = "hidden";
+  // addRestartStreamControls();
   console.log({
     response,
   });
@@ -487,7 +494,7 @@ const socketEventListener = () => {
   document.getElementById("endChatButton").disabled = false;
   // document.getElementById("editPrivateStreamPriceButton").disabled = false;
   document.getElementById("sendButton").disabled = false;
-  document.getElementById("pauseChatButton").disabled = false;
+  document.getElementById("pausebutton").disabled = false;
   // document.getElementById("goalsButton").disabled = false;
   // document.getElementById("sendNotificationButton").disabled = false;
   // document.getElementById("manageTagsButton").disabled = false;
@@ -1383,20 +1390,31 @@ const send_notification = async () => {
   console.log({ response });
 };
 const muteAudio = () => {
-  const doc = document.getElementById("muteAudioButton").innerText;
-
-  if (doc == "Mute Microphone") {
-    window.client.disableAudio();
-    document.getElementById("muteAudioButton").style.backgroundColor = "red";
-    document.getElementById("muteAudioButton").innerText = "Unmute Microphone";
-    console.log("Audio Muted");
-  } else {
+  if (muted) {
+    document.getElementById("audioTrackIconMute").style.display = "none";
+    document.getElementById("audioTrackIconUnMute").style.display = "block";
     window.client.enableAudio();
-    document.getElementById("muteAudioButton").style.backgroundColor =
-      "#3b71ca";
-    document.getElementById("muteAudioButton").innerText = "Mute Microphone";
-    console.log("Audio Unmuted");
+    muted = false;
+  } else {
+    document.getElementById("audioTrackIconMute").style.display = "block";
+    document.getElementById("audioTrackIconUnMute").style.display = "none";
+    window.client.disableAudio();
+    muted = true;
   }
+  // const doc = document.getElementById("muteAudioButton").innerText;
+
+  // if (doc == "Mute Microphone") {
+  //   window.client.disableAudio();
+  //   document.getElementById("muteAudioButton").style.backgroundColor = "red";
+  //   document.getElementById("muteAudioButton").innerText = "Unmute Microphone";
+  //   console.log("Audio Muted");
+  // } else {
+  //   window.client.enableAudio();
+  //   document.getElementById("muteAudioButton").style.backgroundColor =
+  //     "#3b71ca";
+  //   document.getElementById("muteAudioButton").innerText = "Mute Microphone";
+  //   console.log("Audio Unmuted");
+  // }
 };
 const addRestartStreamControls = () => {
   const restartStreamButton = document.createElement("button");
@@ -1433,7 +1451,7 @@ const startPrivateStream = async () => {
 };
 const pausePrivateStreamForFunding = () => {
   document.getElementById("pause-button").disabled = true;
-  const imagePath = "../assets/waiting-for-token-funding.png";
+  const imagePath = "./assets/waiting-for-token-funding.png";
   const img = new Image();
   img.src = imagePath;
   img.onload = function () {

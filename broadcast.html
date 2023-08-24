@@ -54,6 +54,8 @@
 
           <!-- image (video) container -->
           <div class="left-container__img-container">
+            <div id="stream-placeholder"></div>
+
             <div id="preview-container" style="position: relative"></div>
           </div>
 
@@ -71,6 +73,7 @@
               id="muteAudioButton"
               class="button-1"
               id="audioTrackIconUnMute"
+              onclick="muteAudio()"
             >
               <i
                 style="font-family: 'Font Awesome 6 Free' !important"
@@ -87,11 +90,16 @@
               ></i>
             </button>
 
-            <button id="pauseChatButton" class="button-1" disabled>
+            <button
+              id="pausebutton"
+              onclick="pauseChat()"
+              class="button-1"
+              disabled
+            >
               <i
                 style="font-family: 'Font Awesome 6 Free' !important"
                 class="fa-solid fa-pause"
-                id="audioTrackIconUnMute"
+                id="streampause"
               ></i>
               <i
                 class="fa-solid fa-play"
@@ -99,10 +107,15 @@
                   font-family: 'Font Awesome 6 Free' !important;
                   display: none;
                 "
-                id="audioTrackIconMute"
+                id="streamcontinue"
               ></i>
             </button>
-            <button id="endChatButton" disabled class="button-1">
+            <button
+              onclick="endChat()"
+              id="endChatButton"
+              disabled
+              class="button-1"
+            >
               <i
                 style="font-family: 'Font Awesome 6 Free' !important"
                 class="fa-solid fa-xmark"
@@ -233,7 +246,14 @@
             </div>
           </div>
         </div>
-
+        <button
+          class="stream-buttons"
+          style="display: none"
+          id="pauseChatButton"
+          disabled
+        >
+          Pause Stream
+        </button>
         <!-- right-section -->
         <div class="right-container chat-container tab-menu" id="chat-tab">
           <!-- chatbox-container -->
