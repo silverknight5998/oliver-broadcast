@@ -428,6 +428,7 @@ const createChannel = async () => {
   const start = document.getElementById("start");
   start.disabled = true;
   erase_all_messages(region, secretAccessKey, secretAccessId, "oliverdb");
+  console.log({ region, secretAccessKey, secretAccessId, channel_id });
   delete_streamer_donations(
     region,
     secretAccessKey,
@@ -1655,7 +1656,12 @@ const showDeviceSelectModal = () => {
                         </div>
                     </div>
                     <div class="TImJU">
-               <canvas id="preview"></canvas> 
+                    <div style="
+                        display: flex;
+                        justify-content: center;
+                    ">
+                    <canvas id="preview"></canvas>
+                    </div>
                     
                     <section class="container">
                     <h3 id="error"></h3>
