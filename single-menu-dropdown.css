@@ -1,0 +1,65 @@
+.target-id {
+    position: relative !important;
+}
+.menu-id {
+    position: absolute;
+    top: calc(100% + 1rem);
+    left: -1rem;
+    right: unset;
+    width: 300px;
+    background: white;
+    text-align: left;
+    padding: 0.75rem 1.5rem;
+    border-radius: 10px;
+    -webkit-border-radius: 10px;
+    -moz-border-radius: 10px;
+    -ms-border-radius: 10px;
+    -o-border-radius: 10px;
+    box-shadow: 0 0 10px 2px rgba(0, 30, 0, 0.15);
+    z-index: 9998;
+}
+.menu-id::before {
+    content: "";
+    display: block;
+    position: absolute;
+    top: -7px;
+    left: calc(var(--target-half-width) + 1rem);
+    border: 8px solid white;
+    border-color: transparent transparent white white;
+    transform: translateX(-50%) rotate(135deg);
+    box-shadow: -2px 2px 3px rgba(57, 73, 76, 0.1);
+}
+.menu-id.right {
+    left: unset;
+    right: -1rem;
+}
+.menu-id.right::before {
+    left: unset;
+    right: var(--target-half-width);
+}
+.menu-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 12px;
+    border-radius: 10px;
+    -webkit-border-radius: 10px;
+    -moz-border-radius: 10px;
+    -ms-border-radius: 10px;
+    -o-border-radius: 10px;
+    cursor: pointer;
+}
+.menu-item .menu-item-icon {
+    display: none;
+    justify-content: center;
+    align-items: center;
+}
+.menu-item.menu-item-active .menu-item-icon {
+    display: flex;
+}
+
+@media (max-width: 600px) {
+    .menu-id {
+        width: 250px;
+    }
+}

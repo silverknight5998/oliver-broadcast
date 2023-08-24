@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="https://fs.codelinden.com/wp-content/themes/hello-child/style.css"
+    />
+    <link rel="stylesheet" href="broadcast.css" />
+
+    <!-- poppins font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="./popup-styles.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- single menu dropdown style -->
+    <link rel="stylesheet" href="single-menu-dropdown.css" />
+
+    <!-- emoji picker script -->
+    <script src="https://cdn.jsdelivr.net/npm/emoji-button@0.6.0/dist/index.min.js"></script>
+    <title>Broadcast</title>
+
+    <!-- splide style and script -->
+    <script src="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/js/splide.min.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/css/splide.min.css"
+    />
+  </head>
+  <body>
+    <div class="stats-container">
+      <div class="stats"><span>Viewers: 5k watching</span></div>
+      <div class="stats"><span>Stream Health: HEALTHY</span></div>
+      <div class="stats"><span>Stream Type: PUBLIC</span></div>
+      <div class="stats"><span>Tips: 370$</span></div>
+      <!-- <div class="stats"><span>Stats 5</span></div> -->
+    </div>
+
+    <div class="wrapper">
+      <!-- top container (video & chat) -->
+      <div class="top-container">
+        <!-- left-section -->
+        <div class="left-container">
+          <!-- New stream title container -->
+          <div class="title-container">
+            <h1 class="stream-title">New stream</h1>
+            <span class="viewers-count">6k watching</span>
+          </div>
+
+          <!-- image (video) container -->
+          <div class="left-container__img-container">
+            <div id="preview-container" style="position: relative"></div>
+          </div>
+
+          <!-- black container-->
+          <div
+            style="
+              display: flex;
+              width: 100%;
+              justify-content: center;
+              align-items: center;
+            "
+            class="black-container"
+          >
+            <button
+              id="muteAudioButton"
+              class="button-1"
+              id="audioTrackIconUnMute"
+            >
+              <i
+                style="font-family: 'Font Awesome 6 Free' !important"
+                class="fa-solid fa-microphone"
+                id="audioTrackIconUnMute"
+              ></i>
+              <i
+                class="fa-solid fa-microphone-slash"
+                style="
+                  font-family: 'Font Awesome 6 Free' !important;
+                  display: none;
+                "
+                id="audioTrackIconMute"
+              ></i>
+            </button>
+
+            <button id="pauseChatButton" class="button-1" disabled>
+              <i
+                style="font-family: 'Font Awesome 6 Free' !important"
+                class="fa-solid fa-pause"
+                id="audioTrackIconUnMute"
+              ></i>
+              <i
+                class="fa-solid fa-play"
+                style="
+                  font-family: 'Font Awesome 6 Free' !important;
+                  display: none;
+                "
+                id="audioTrackIconMute"
+              ></i>
+            </button>
+            <button id="endChatButton" disabled class="button-1">
+              <i
+                style="font-family: 'Font Awesome 6 Free' !important"
+                class="fa-solid fa-xmark"
+                id="audioTrackIconUnMute"
+              ></i>
+            </button>
+            <button
+              id="muteAudioButton"
+              class="button-1"
+              id="audioTrackIconUnMute"
+            >
+              <i
+                style="font-family: 'Font Awesome 6 Free' !important"
+                class="fa-solid fa-gear"
+                id="audioTrackIconUnMute"
+              ></i>
+            </button>
+          </div>
+
+          <!-- full screen toggle container -->
+          <div class="toggle">
+            <!-- enter full-screen icon -->
+            <svg
+              class="icon-full-screen toggle-icon"
+              viewBox="0 0 20 20"
+              version="1.1"
+              xmlns="http://www.w3.org/2000/svg"
+              xmlns:xlink="http://www.w3.org/1999/xlink"
+              fill="white"
+            >
+              <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+              <g
+                id="SVGRepo_tracerCarrier"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              ></g>
+              <g id="SVGRepo_iconCarrier">
+                <defs></defs>
+                <g
+                  id="Page-1"
+                  stroke="none"
+                  stroke-width="1"
+                  fill="none"
+                  fill-rule="evenodd"
+                >
+                  <g
+                    id="Dribbble-Light-Preview"
+                    transform="translate(-300.000000, -4199.000000)"
+                    fill="white"
+                  >
+                    <g id="icons" transform="translate(56.000000, 160.000000)">
+                      <path
+                        d="M262.4445,4039 L256.0005,4039 L256.0005,4041 L262.0005,4041 L262.0005,4047 L264.0005,4047 L264.0005,4039.955 L264.0005,4039 L262.4445,4039 Z M262.0005,4057 L256.0005,4057 L256.0005,4059 L262.4445,4059 L264.0005,4059 L264.0005,4055.955 L264.0005,4051 L262.0005,4051 L262.0005,4057 Z M246.0005,4051 L244.0005,4051 L244.0005,4055.955 L244.0005,4059 L246.4445,4059 L252.0005,4059 L252.0005,4057 L246.0005,4057 L246.0005,4051 Z M246.0005,4047 L244.0005,4047 L244.0005,4039.955 L244.0005,4039 L246.4445,4039 L252.0005,4039 L252.0005,4041 L246.0005,4041 L246.0005,4047 Z"
+                        id="full_screen-[#904]"
+                      ></path>
+                    </g>
+                  </g>
+                </g>
+              </g>
+            </svg>
+            <!-- exit full-screen icon -->
+            <svg
+              class="icon-exit-full-screen toggle-icon"
+              viewBox="0 0 20 20"
+              version="1.1"
+              xmlns="http://www.w3.org/2000/svg"
+              xmlns:xlink="http://www.w3.org/1999/xlink"
+              fill="white"
+            >
+              <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+              <g
+                id="SVGRepo_tracerCarrier"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              ></g>
+              <g id="SVGRepo_iconCarrier">
+                <defs></defs>
+                <g
+                  id="Page-1"
+                  stroke="none"
+                  stroke-width="1"
+                  fill="none"
+                  fill-rule="evenodd"
+                >
+                  <g
+                    id="Dribbble-Light-Preview"
+                    transform="translate(-260.000000, -4199.000000)"
+                    fill="white"
+                  >
+                    <g id="icons" transform="translate(56.000000, 160.000000)">
+                      <path
+                        d="M218,4047 L224,4047 L224,4045 L218,4045 L218,4039 L216,4039 L216,4043.959 L216,4047 L218,4047 Z M218,4053 L224,4053 L224,4051 L218,4051 L216,4051 L216,4051.959 L216,4059 L218,4059 L218,4053 Z M210,4059 L212,4059 L212,4051.959 L212,4051 L210,4051 L204,4051 L204,4053 L210,4053 L210,4059 Z M210,4039 L212,4039 L212,4043.959 L212,4047 L210,4047 L204,4047 L204,4045 L210,4045 L210,4039 Z"
+                        id="exit_full_screen-[#905]"
+                      ></path>
+                    </g>
+                  </g>
+                </g>
+              </g>
+            </svg>
+          </div>
+
+          <!-- pin icon container -->
+          <div class="pin-icon-container">
+            <div class="svg-wrapper">
+              <svg
+                class="icon-pin"
+                fill="#000000"
+                height="200px"
+                width="200px"
+                id="Layer_1"
+                data-name="Layer 1"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 16 16"
+              >
+                <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                <g
+                  id="SVGRepo_tracerCarrier"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                ></g>
+                <g id="SVGRepo_iconCarrier">
+                  <path
+                    class="cls-1"
+                    d="M10,7,9.375,2H10V1H5V2h.625L5,7A2,2,0,0,0,3,9H7v4l.5,2L8,13V9h4A2,2,0,0,0,10,7Z"
+                  ></path>
+                </g>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- right-section -->
+        <div class="right-container chat-container tab-menu" id="chat-tab">
+          <!-- chatbox-container -->
+          <div class="chatbox-container">
+            <!-- message-navbar -->
+            <div class="message-navbar">
+              <div class="message-navbar__left">
+                <span class="message-navbar__left-heading">Live Chat</span>
+              </div>
+
+              <div class="message-navbar__right">
+                <div class="message-settings icon-container target-id">
+                  <div id="target_id4" class="svg-wrapper target-id-button">
+                    <svg
+                      class="icon-settings DeYlt"
+                      width="24px"
+                      height="24px"
+                      viewBox="0 0 24 24"
+                      version="1.1"
+                      xmlns="http://www.w3.org/2000/svg"
+                      xmlns:xlink="http://www.w3.org/1999/xlink"
+                    >
+                      <g
+                        id="web-app"
+                        stroke="none"
+                        stroke-width="1"
+                        fill="#6c757d"
+                        fill-rule="evenodd"
+                      >
+                        <g id="elipsis-v">
+                          <path
+                            d="M12,20 C10.8954305,20 10,19.1045695 10,18 C10,16.8954305 10.8954305,16 12,16 C13.1045695,16 14,16.8954305 14,18 C14,19.1045695 13.1045695,20 12,20 Z M12,14 C10.8954305,14 10,13.1045695 10,12 C10,10.8954305 10.8954305,10 12,10 C13.1045695,10 14,10.8954305 14,12 C14,13.1045695 13.1045695,14 12,14 Z M12,8 C10.8954305,8 10,7.1045695 10,6 C10,4.8954305 10.8954305,4 12,4 C13.1045695,4 14,4.8954305 14,6 C14,7.1045695 13.1045695,8 12,8 Z"
+                            id="Shape"
+                            class="tRLtc"
+                          ></path>
+                        </g>
+                      </g>
+                    </svg>
+                  </div>
+
+                  <div id="menu_id4" class="menu-id">
+                    <p class="token-container">
+                      150 Tokens Credit | 10 Tokens / 30ses
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- chatbox-tip-container -->
+            <div class="chatbox-tip-container">
+              <p class="chatbox-tip-text">Latest tipper: <span>xyz</span></p>
+              <p class="chatbox-tip-text">Highest tipper: <span>xyz</span></p>
+            </div>
+
+            <!-- message-container -->
+            <div class="message-container"></div>
+
+            <!-- input-container -->
+            <form
+              class="input-container"
+              id="inputContainer"
+              onsubmit="event.preventDefault(); sendFunction()"
+            >
+              <!-- image-container -->
+              <div class="img-container DeYlt">
+                <img
+                  src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-4.0.3&amp;ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8cHJvZmlsZSUyMGltYWdlfGVufDB8fDB8fHww&amp;auto=format&amp;fit=crop&amp;w=500&amp;q=60"
+                  alt=""
+                />
+              </div>
+
+              <!-- emoji-section -->
+              <div class="emoji-container">
+                <div
+                  class="DeYlt select-emoji send-emoji"
+                  id="emoji-button"
+                ></div>
+              </div>
+              <input
+                type="text"
+                placeholder="Type message here..."
+                class="input-message emoji-input"
+                id="input-message"
+              />
+
+              <!-- send message button -->
+              <button
+                type="submit"
+                aria-label="send message"
+                class="send-message"
+                id="sendButton"
+                disabled
+              >
+                <svg
+                  class="icon-send"
+                  width="18px"
+                  height="18px"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    clip-rule="evenodd"
+                    d="M19.2111 2.06722L3.70001 5.94499C1.63843 6.46039 1.38108 9.28612 3.31563 10.1655L8.09467 12.3378C9.07447 12.7831 10.1351 12.944 11.1658 12.8342C11.056 13.8649 11.2168 14.9255 11.6622 15.9053L13.8345 20.6843C14.7139 22.6189 17.5396 22.3615 18.055 20.3L21.9327 4.78886C22.3437 3.14517 20.8548 1.6563 19.2111 2.06722ZM8.92228 10.517C9.85936 10.943 10.9082 10.9755 11.8474 10.6424C12.2024 10.5165 12.5417 10.3383 12.8534 10.1094C12.8968 10.0775 12.9397 10.0446 12.982 10.0108L15.2708 8.17974C15.6351 7.88831 16.1117 8.36491 15.8202 8.7292L13.9892 11.018C13.9553 11.0603 13.9225 11.1032 13.8906 11.1466C13.6617 11.4583 13.4835 11.7976 13.3576 12.1526C13.0244 13.0918 13.057 14.1406 13.4829 15.0777L15.6552 19.8567C15.751 20.0673 16.0586 20.0393 16.1147 19.8149L19.9925 4.30379C20.0372 4.12485 19.8751 3.96277 19.6962 4.00751L4.18509 7.88528C3.96065 7.94138 3.93264 8.249 4.14324 8.34473L8.92228 10.517Z"
+                    class="tRLtc"
+                  ></path>
+                </svg>
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- bottom container (profile-meta & page content) -->
+      <div class="bottom-container">
+        <!-- profile-meta-container -->
+        <div class="profile-meta-container">
+          <div class="room-card">
+            <div class="room-card__image-container target-id">
+              <img
+                id="target_id3"
+                class="room-card__image target-id-button"
+                src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8cHJvZmlsZSUyMGltYWdlfGVufDB8fDB8fHww&auto=format&fit=crop&w=500&q=60"
+                alt=""
+              />
+              <div id="menu_id3" class="menu-id">
+                <div class="carousel-container">
+                  <div class="splide" role="group" aria-label="carousel">
+                    <div class="splide__track">
+                      <ul class="splide__list">
+                        <li class="splide__slide">Slide 01</li>
+                        <li class="splide__slide">Slide 02</li>
+                        <li class="splide__slide">Slide 03</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+                <h3 class="streamer-name">Name</h3>
+                <span class="streamer-age">Age</span>
+                <span class="streamer-country">Country</span>
+              </div>
+            </div>
+            <div class="room-card__content">
+              <div class="room-card__top">
+                <div class="room-card__user-info">
+                  <span class="room-card__user-name"> Alicia Veronica </span>
+
+                  <span class="room-card__user-username">@aliciaveronica</span>
+                </div>
+                <!-- icon-container -->
+                <div class="room-card__icons">
+                  <div class="room__icon-container target-id">
+                    <div id="target_id1" class="svg-wrapper target-id-button">
+                      <svg
+                        class="icon-keyhole DeYlt"
+                        width="24"
+                        height="24"
+                        fill="black"
+                        version="1.1"
+                        id="Capa_1"
+                        xmlns="http://www.w3.org/2000/svg"
+                        xmlns:xlink="http://www.w3.org/1999/xlink"
+                        viewBox="0 0 28.457 28.456"
+                        xml:space="preserve"
+                      >
+                        <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                        <g
+                          id="SVGRepo_tracerCarrier"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        ></g>
+                        <g id="SVGRepo_iconCarrier">
+                          <g>
+                            <path
+                              d="M21.015,6.986c0,2.627-1.449,4.916-3.593,6.108c3.991,15.362,3.991,15.362,3.991,15.362s-13.619,0-14.144,0 c4.145-14.989,0,0,4.145-14.989C8.853,12.433,7.042,9.92,7.042,6.986C7.042,3.127,10.169,0,14.028,0 C17.888,0,21.015,3.127,21.015,6.986z"
+                            ></path>
+                          </g>
+                        </g>
+                      </svg>
+                    </div>
+
+                    <!-- single menu dropdown (keyhole icon dropdown) -->
+                    <div id="menu_id1" class="menu-id menu-settings">
+                      <div class="menu-settings__top">
+                        <div class="room-container__left">
+                          <div class="room__img-container">
+                            <img
+                              src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8cHJvZmlsZSUyMGltYWdlfGVufDB8fDB8fHww&auto=format&fit=crop&w=500&q=60"
+                              alt=""
+                            />
+                          </div>
+
+                          <div class="room__info-container">
+                            <span class="room__info-name">@Profile_Name</span>
+                            <span class="room__info-followers"
+                              >Followers: 10K</span
+                            >
+                          </div>
+                        </div>
+
+                        <div class="icon-container">
+                          <svg
+                            class="icon-close DeYlt"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                            <g
+                              id="SVGRepo_tracerCarrier"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                            ></g>
+                            <g id="SVGRepo_iconCarrier">
+                              <g id="Menu / Close_LG">
+                                <path
+                                  id="Vector"
+                                  d="M21 21L12 12M12 12L3 3M12 12L21.0001 3M12 12L3 21.0001"
+                                  stroke="#000000"
+                                  stroke-width="2"
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                ></path>
+                              </g>
+                            </g>
+                          </svg>
+                        </div>
+                      </div>
+
+                      <div class="menu-item-container">
+                        <div class="menu-item">Follow</div>
+                        <div class="menu-item">Report</div>
+                        <div class="menu-item">Block</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="room__icon-container target-id">
+                    <div id="target_id2" class="svg-wrapper target-id-button">
+                      <svg
+                        class="icon-share DeYlt"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                        <g
+                          id="SVGRepo_tracerCarrier"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        ></g>
+                        <g id="SVGRepo_iconCarrier">
+                          <path
+                            d="M8.68439 10.6578L15.3124 7.34378M15.3156 16.6578L8.69379 13.3469M21 6C21 7.65685 19.6569 9 18 9C16.3431 9 15 7.65685 15 6C15 4.34315 16.3431 3 18 3C19.6569 3 21 4.34315 21 6ZM9 12C9 13.6569 7.65685 15 6 15C4.34315 15 3 13.6569 3 12C3 10.3431 4.34315 9 6 9C7.65685 9 9 10.3431 9 12ZM21 18C21 19.6569 19.6569 21 18 21C16.3431 21 15 19.6569 15 18C15 16.3431 16.3431 15 18 15C19.6569 15 21 16.3431 21 18Z"
+                            stroke="black"
+                            stroke-width="1.5"
+                          ></path>
+                        </g>
+                      </svg>
+                    </div>
+
+                    <!-- single menu dropdown -->
+                    <div class="menu-id" id="menu_id2">
+                      <div class="menu-item menu-item-active">
+                        <div class="menu-item-icon">
+                          <svg
+                            width="10"
+                            height="10"
+                            viewBox="0 0 24 24"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              fill="#3B5998"
+                              fill-rule="evenodd"
+                              d="M9.945 22v-8.834H7V9.485h2.945V6.54c0-3.043 1.926-4.54 4.64-4.54 1.3 0 2.418.097 2.744.14v3.18h-1.883c-1.476 0-1.82.703-1.82 1.732v2.433h3.68l-.736 3.68h-2.944L13.685 22"
+                            ></path>
+                          </svg>
+                        </div>
+
+                        <span>Facebook</span>
+                      </div>
+
+                      <div class="menu-item menu-item-active">
+                        <div class="menu-item-icon">
+                          <svg
+                            class="unq_MQNCa"
+                            width="10"
+                            height="10"
+                            viewBox="0 0 32 32"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              d="M30.001 16.31c0-1.15-.095-1.99-.301-2.861H16.287v5.195h7.873c-.159 1.291-1.016 3.236-2.92 4.542l-.027.174 4.24 3.22.294.029c2.699-2.443 4.254-6.036 4.254-10.298z"
+                              fill="#4285F4"
+                              class="tRLtc"
+                            ></path>
+                            <path
+                              d="M16.286 30c3.857 0 7.095-1.245 9.46-3.391l-4.507-3.423c-1.207.825-2.826 1.4-4.953 1.4A8.584 8.584 0 0 1 8.16 18.77l-.167.014-4.41 3.344-.058.157C5.874 26.857 10.7 30 16.286 30z"
+                              fill="#34A853"
+                              class="tRLtc"
+                            ></path>
+                            <path
+                              d="M8.16 18.769A8.463 8.463 0 0 1 7.684 16c0-.964.174-1.898.46-2.769l-.008-.185L3.67 9.647l-.146.069A13.786 13.786 0 0 0 2 16c0 2.256.556 4.387 1.524 6.285l4.635-3.516z"
+                              fill="#FBBC05"
+                              class="tRLtc"
+                            ></path>
+                            <path
+                              d="M16.286 7.413c2.683 0 4.492 1.136 5.524 2.085l4.032-3.858C23.366 3.384 20.144 2 16.286 2 10.7 2 5.874 5.142 3.524 9.715l4.62 3.516c1.158-3.375 4.365-5.818 8.142-5.818z"
+                              fill="#EB4335"
+                              class="tRLtc"
+                            ></path>
+                          </svg>
+                        </div>
+
+                        <span>Google</span>
+                      </div>
+
+                      <div class="menu-item menu-item-active">
+                        <div class="menu-item-icon">
+                          <svg
+                            class="unq_qGjSF"
+                            width="10"
+                            height="10"
+                            viewBox="0 -4 48 48"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <g fill="#00AAEC" class="tRLtc" fill-rule="evenodd">
+                              <path
+                                d="M48 4.735a19.235 19.235 0 0 1-5.655 1.59A10.076 10.076 0 0 0 46.675.74a19.395 19.395 0 0 1-6.257 2.447C38.627 1.225 36.066 0 33.231 0c-5.435 0-9.844 4.521-9.844 10.098 0 .791.085 1.56.254 2.3C15.456 11.974 8.2 7.96 3.34 1.842A10.281 10.281 0 0 0 2.01 6.925c0 3.502 1.738 6.593 4.38 8.405a9.668 9.668 0 0 1-4.462-1.26v.124c0 4.894 3.395 8.977 7.903 9.901a9.39 9.39 0 0 1-2.595.356c-.634 0-1.254-.061-1.854-.18 1.254 4.01 4.888 6.932 9.199 7.01-3.37 2.71-7.618 4.325-12.23 4.325-.795 0-1.58-.047-2.35-.139C4.359 38.327 9.537 40 15.096 40c18.115 0 28.019-15.385 28.019-28.73 0-.439-.009-.878-.026-1.308A20.211 20.211 0 0 0 48 4.735"
+                                class="tRLtc"
+                              ></path>
+                            </g>
+                          </svg>
+                        </div>
+
+                        <span>Twitter</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="room__icon-container">
+                    <div class="svg-wrapper">
+                      <svg
+                        class="icon-heart DeYlt"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                        <g
+                          id="SVGRepo_tracerCarrier"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        ></g>
+                        <g id="SVGRepo_iconCarrier">
+                          <path
+                            d="M12.39 20.87a.696.696 0 0 1-.78 0C9.764 19.637 2 14.15 2 8.973c0-6.68 7.85-7.75 10-3.25 2.15-4.5 10-3.43 10 3.25 0 5.178-7.764 10.664-9.61 11.895z"
+                            fill="black"
+                          ></path>
+                        </g>
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="room-card__bottom">
+                <div class="room-card__followers-info">
+                  <div class="room-card__followers">
+                    <span class="room-card__followers-number">10K</span>
+                    <span class="room-card__followers-text">Followers</span>
+                  </div>
+                  <button class="room-card__follow-btn">Follow</button>
+                </div>
+              </div>
+              <!-- goal-section -->
+              <div class="goal-container">
+                <h4 class="goal-description">
+                  Goal: Sing a song / 2000 tokens
+                </h4>
+                <div class="progress">
+                  <div class="progress-bar-container">
+                    <div class="progress-bar tRLtc"></div>
+                  </div>
+                  <p class="progress-status">
+                    <span class="progress-percentage">10%</span>
+                    /
+                    <span class="progress-tokens">100</span>
+                    Tokens
+                  </p>
+                </div>
+                <div class="goal-tip">
+                  <p class="goal-tip-text">
+                    Latest Tipper:
+                    <span class="goal-tipper-name">abc</span>
+                    <span class="goal-tip-amount">10tk</span>
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- tab-button-container-->
+        <div class="tab-buttons">
+          <div class="tab-button-container">
+            <button
+              id="description-btn"
+              class="tab-button active UJQCM"
+              onclick="showTab('description')"
+            >
+              Description
+            </button>
+
+            <button
+              id="rooms-btn"
+              class="tab-button UJQCM"
+              onclick="showTab('rooms')"
+            >
+              More Rooms
+            </button>
+
+            <button
+              id="rules-btn"
+              class="tab-button UJQCM"
+              onclick="showTab('rules')"
+            >
+              Rules
+            </button>
+
+            <button
+              id="chat-btn"
+              class="tab-button UJQCM"
+              onclick="showTab('chat')"
+            >
+              Chat
+            </button>
+          </div>
+        </div>
+
+        <div class="page-content-container">
+          <!-- more-room container -->
+          <div class="more-room rooms-container tab-menu" id="rooms-tab">
+            <h1>More Rooms</h1>
+            <p>
+              Lorem ipsum dolor, sit amet consectetur adipisicing elit. Tempora
+              aspernatur commodi quam vero aperiam delectus culpa illum quod,
+              maiores in reiciendis rerum error laborum sit labore! Molestiae
+              reprehenderit soluta minima exercitationem minus voluptatum eius
+              nulla aspernatur dolore a quos adipisci, rerum eaque quo
+              asperiores libero autem, vitae optio! Fuga, dolor.
+            </p>
+          </div>
+
+          <!-- description-container -->
+          <div
+            class="description-container tab-menu active"
+            id="description-tab"
+          >
+            <h1>Description</h1>
+            <section class="container">
+              <!-- <label for="ingest-endpoint">Ingest Endpoint</label> -->
+              <p style="display: inline; font-weight: bold">
+                Your Ingest Endpoint:
+              </p>
+              <p
+                style="display: inline; user-select: all"
+                id="ingest-endpoint-after"
+              ></p>
+              <!-- <button onclick="copyingest()">copy</button> -->
+            </section>
+            <section class="container">
+              <!-- <label for="stream-key">Stream Key</label> -->
+              <p style="display: inline; font-weight: bold">Your Stream Key:</p>
+              <p
+                style="display: inline; user-select: all"
+                id="stream-key-after"
+              ></p>
+              <!-- <button onclick="copykey()">copy</button> -->
+            </section>
+          </div>
+
+          <!-- rules-container -->
+          <div class="rules-container tab-menu" id="rules-tab">
+            <h1>Rules</h1>
+            <p>
+              Lorem ipsum dolor, sit amet consectetur adipisicing elit. Tempora
+              aspernatur commodi quam vero aperiam delectus culpa illum quod,
+              maiores in reiciendis rerum error laborum sit labore! Molestiae
+              reprehenderit soluta minima exercitationem minus voluptatum eius
+              nulla aspernatur dolore a quos adipisci, rerum eaque quo
+              asperiores libero autem, vitae optio! Fuga, dolor.
+            </p>
+          </div>
+
+          <!-- mobile-chatbox -->
+          <div class="mobile-chatbox">
+            <!-- input-container-copy -->
+            <div class="input-container">
+              <div class="img-container">
+                <img
+                  src="https://images.unsplash.com/photo-1505033575518-a36ea2ef75ae?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTZ8fHByb2ZpbGUlMjBpbWFnZXxlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&w=500&q=60"
+                  alt=""
+                />
+              </div>
+
+              <div class="emoji-container">
+                <div
+                  class="DeYlt select-emoji send-emoji"
+                  id="emoji-button"
+                ></div>
+              </div>
+
+              <input
+                type="text"
+                placeholder="Type message here..."
+                class="input-message emoji-input"
+              />
+
+              <button
+                type="submit"
+                aria-label="send message"
+                class="send-message"
+              >
+                <svg
+                  class="icon-send"
+                  width="18px"
+                  height="18px"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    clip-rule="evenodd"
+                    d="M19.2111 2.06722L3.70001 5.94499C1.63843 6.46039 1.38108 9.28612 3.31563 10.1655L8.09467 12.3378C9.07447 12.7831 10.1351 12.944 11.1658 12.8342C11.056 13.8649 11.2168 14.9255 11.6622 15.9053L13.8345 20.6843C14.7139 22.6189 17.5396 22.3615 18.055 20.3L21.9327 4.78886C22.3437 3.14517 20.8548 1.6563 19.2111 2.06722ZM8.92228 10.517C9.85936 10.943 10.9082 10.9755 11.8474 10.6424C12.2024 10.5165 12.5417 10.3383 12.8534 10.1094C12.8968 10.0775 12.9397 10.0446 12.982 10.0108L15.2708 8.17974C15.6351 7.88831 16.1117 8.36491 15.8202 8.7292L13.9892 11.018C13.9553 11.0603 13.9225 11.1032 13.8906 11.1466C13.6617 11.4583 13.4835 11.7976 13.3576 12.1526C13.0244 13.0918 13.057 14.1406 13.4829 15.0777L15.6552 19.8567C15.751 20.0673 16.0586 20.0393 16.1147 19.8149L19.9925 4.30379C20.0372 4.12485 19.8751 3.96277 19.6962 4.00751L4.18509 7.88528C3.96065 7.94138 3.93264 8.249 4.14324 8.34473L8.92228 10.517Z"
+                    class="tRLtc"
+                  ></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- single menu dropdown script -->
+    <script
+      src="https://kit.fontawesome.com/a926154df8.js"
+      crossorigin="anonymous"
+    ></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.13.1/jquery-ui.min.js"></script>
+    <script src="https://web-broadcast.live-video.net/1.2.0/amazon-ivs-web-broadcast.js"></script>
+    <script src="./aws/main.js"></script>
+    <script>
+      const config = {
+        ingestEndpoint: "https://g.webrtc.live-video.net:4443",
+        streamConfig: window.IVSBroadcastClient.BASIC_LANDSCAPE,
+        logLevel: window.IVSBroadcastClient.LOG_LEVEL.DEBUG,
+      };
+      const channelConfigs = [
+        ["Basic: Landscape", window.IVSBroadcastClient.BASIC_LANDSCAPE],
+        ["Basic: Portrait", window.IVSBroadcastClient.BASIC_PORTRAIT],
+        ["Standard: Landscape", window.IVSBroadcastClient.STANDARD_LANDSCAPE],
+        ["Standard: Portrait", window.IVSBroadcastClient.STANDARD_PORTRAIT],
+      ];
+    </script>
+    <script src="single-menu-dropdown.js"></script>
+    <script src="broadcast.js"></script>
+    <script src="./utility.js"></script>
+  </body>
+</html>
