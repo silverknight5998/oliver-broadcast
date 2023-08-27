@@ -481,8 +481,12 @@ const createChannel = async () => {
   document.getElementById("room-rules").innerHTML = roomRules;
   console.log({ name });
   document.getElementsByClassName("stream-title")[0].innerText = name;
-
-  await startBroadcast();
+  try {
+    await startBroadcast();
+  } catch (err) {
+    console.log({ err });
+    return;
+  }
   const health = await window.client.getConnectionState();
 
   console.log({ health });
@@ -946,13 +950,25 @@ const init = async () => {
 };
 const updatePrivateStreamPrice = async () => {
   const newPrice = document.getElementById("private-stream-price").value;
+  const newPriceView = document.getElementById(
+    "private-stream-price-for-viewer"
+  ).value;
+
   privateStreamPrice = newPrice;
+  privateStreamViewPrice = newPriceView;
   await update_private_stream_cost(
     region,
     secretAccessKey,
     secretAccessId,
     channel_id,
     newPrice
+  );
+  await update_view_private_stream_cost(
+    region,
+    secretAccessKey,
+    secretAccessId,
+    channel_id,
+    newPriceView
   );
 
   await send_event_with_attributes(
@@ -963,60 +979,108 @@ const updatePrivateStreamPrice = async () => {
     "private-price-update",
     {
       newPrice: newPrice,
+      newPriceView: newPriceView,
     }
   );
+};
+const removeGoalInSettings = number => {
+  document.getElementById(`goalContainer${number}`).remove();
+  for (let i = number + 1; i < goalCount; i++) {
+    document.getElementById(`goalContainer${i}`).id = `goalContainer${i - 1}`;
+    document.getElementById(`completed${i}`).id = `completed${i - 1}`;
+    document.getElementById(`${i}`).id = `${i - 1}`;
+    document.getElementById(`name${i}`).id = `name${i - 1}`;
+    document.getElementById(`amount${i}`).id = `amount${i - 1}`;
+  }
+  goalCount--;
 };
 const addGoalFunction = () => {
   const goalContainer = document.createElement("div");
   goalContainer.setAttribute("class", "goalContainer");
+  goalContainer.setAttribute("id", `goalContainer${goalCount}`);
   goalContainer.innerHTML = `
   <input id='name${goalCount}' type="text" placeholder="Goal Name" />
   <input id='amount${goalCount}' type="number" placeholder="Goal Amount" />
   <button class='stream-buttons' style='display:none;' id='completed${goalCount}' onclick="markGoalComplete(this)">Manually Mark Complete</button>
+  <button class='stream-buttons' id='${goalCount}' onclick="removeGoalInSettings(${goalCount})">Remove Goal</button>
   `;
   document.getElementById("goals").appendChild(goalContainer);
   goalCount++;
 };
 const renderGoals = async () => {
-  const goals = await get_goals(
+  const goalsFromDb = await get_goals(
     region, // Replace with your chatroom region
     secretAccessKey, // Replace with your secret access key
     secretAccessId, // Replace with your secret key id
     "oliverdb"
   );
-  console.log({ goals });
-  const sortedByAmount = goals.sort((a, b) => {
+  console.log({ goalsFromDb });
+  const sortedByAmount = goalsFromDb.sort((a, b) => {
     return parseInt(b.amount.N) - parseInt(a.amount.N);
   });
+
   // const goalContainer = document.getElementById("goals");
   // goalContainer.innerHTML = "";
   // console.log({ sortedByAmount });
   for (let i = sortedByAmount.length - 1; i >= 0; i--) {
     console.log({ tst: sortedByAmount[i] });
-    if (parseInt(sortedByAmount[i].amount.N) <= total_donations) continue;
+    if (parseInt(sortedByAmount[i].amount.N) <= total_donations) {
+      if (sortedByAmount[i].completed.N == "0") {
+        sortedByAmount[i].completed.N = "1";
+        let newgoals = [];
+        for (let j = 0; j < sortedByAmount.length; j++) {
+          const name = sortedByAmount[j].name.S;
+          const amount = sortedByAmount[j].amount.N;
+          const completed = sortedByAmount[j].completed.N;
+
+          newgoals.push({ name, amount, completed: completed, type: "goal" });
+        }
+
+        await update_goal(
+          region,
+          secretAccessKey,
+          secretAccessId,
+          "oliverdb",
+          newgoals
+        );
+        console.log({ newgoals });
+        goals = newgoals;
+        send_event_with_attributes(
+          region, // Replace with your chatroom region
+          secretAccessKey, // Replace with your secret access key
+          secretAccessId, // Replace with your secret key id
+          channel_id,
+          "goal-completed",
+          {
+            data: `${sortedByAmount[i].name.S} Completed`,
+          }
+        );
+      }
+
+      document.getElementsByClassName("progress-status")[0].innerHTML = `
+        <span class="progress-percentage">Complete</span>`;
+      document.getElementsByClassName("goal-description")[0].innerText =
+        "Goal: " + sortedByAmount[i].name.S;
+      updateProgressBar(total_donations, parseInt(sortedByAmount[i].amount.N));
+      continue;
+    }
+
     document.getElementById("progress").style.display = "block";
     if (sortedByAmount[i].completed.N == "0") {
       document.getElementsByClassName("progress-status")[0].innerHTML = `
         <span class="progress-percentage">${total_donations}
-        </span>
-                    /
-                    <span class="progress-tokens">${sortedByAmount[i].amount.N}</span>
-                    Tokens
-        `;
-
+        </span>/<span class="progress-tokens">${sortedByAmount[i].amount.N}</span> Tokens`;
       document.getElementsByClassName("goal-description")[0].innerText =
         "Goal: " + sortedByAmount[i].name.S;
-
       updateProgressBar(total_donations, parseInt(sortedByAmount[i].amount.N));
       break;
     } else {
       document.getElementsByClassName("progress-status")[0].innerHTML = `
         <span class="progress-percentage">Complete</span>`;
-
       document.getElementsByClassName("goal-description")[0].innerText =
         "Goal: " + sortedByAmount[i].name.S;
-
       updateProgressBar(total_donations, parseInt(sortedByAmount[i].amount.N));
+      break;
     }
   }
 };
@@ -1045,9 +1109,9 @@ const saveAllGoals = async () => {
 const removeGoalFunction = el => {
   const index = el.id;
   goals.splice(index, 1);
-  el.parentElement.remove();
+  // el.parentElement.remove();
   document.getElementById("goals").innerHTML = "";
-  renderGoals();
+  showGoalsInSettings();
 };
 const markGoalComplete = el => {
   console.log("called");
@@ -1607,6 +1671,7 @@ const showGoalsInSettings = () => {
     return a.amount - b.amount;
   });
   sortedGoals.forEach(goal => {
+    console.log({ goal, goalCount });
     const goalContainer = document.createElement("div");
     goalContainer.setAttribute("class", "goalContainer");
     goalContainer.innerHTML = `
@@ -1614,10 +1679,8 @@ const showGoalsInSettings = () => {
   <input id='amount${goalCount}' type="number" placeholder="Goal Amount" />
   <button class='stream-buttons' id='${goalCount}' onclick="removeGoalFunction(this)">Delete</button>
   <button class='stream-buttons' id='completed${goalCount}' onclick="markGoalComplete(this)">${
-      goal.completed ? "Completed" : "Manually Mark Complete"
+      parseInt(goal.completed) ? "Completed" : "Manually Mark Complete"
     }</button>
-       
-  
   `;
     document.getElementById("goals").appendChild(goalContainer);
     document
@@ -1810,7 +1873,15 @@ const settingsModal = () => {
                 <input id='private-stream-price' type='number' value='${parseInt(
                   privateStreamPrice
                 )}'/>
-              </div>
+                
+                </div>
+                <h2 style="font-size: 18px;">Set Private Stream Costs For Viewer (Per 30 Seconds)</h2>
+              <div style="display:flex;">
+                <input id='private-stream-price-for-viewer' type='number' value='${parseInt(
+                  privateStreamViewPrice
+                )}'/>
+                </div>
+
             </div>
 
             <div>
