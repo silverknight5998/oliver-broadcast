@@ -154,26 +154,46 @@ const insertImage = src => {
   imageElement.src = src;
   document.getElementById("stream-placeholder").appendChild(imageElement);
 };
-const addPrivateRequest = (user, credits) => {
+const addPrivateRequest = (user, credits, userToken) => {
+  const prettyModal = document.createElement("div");
+  prettyModal.setAttribute("id", "alert-popup");
+  prettyModal.classList.add("DuKSh");
+  prettyModal.classList.add("EJVsl");
+  prettyModal.classList.add("OtrSK");
+  prettyModal.classList.add("cNGwx");
+  prettyModal.classList.add("gsCWf");
+  prettyModal.style.backgroundColor = "rgba(0, 170, 255, 0.58)";
+  prettyModal.innerHTML = `
+   <div class="GodhZ gsCWf EJVsl OtrSK CzomY">
+                <div class="ExGby HruDj">
+                    <div class="tSrNa gsCWf EJVsl zsSLy">
+                        <h1 class="USKIn">Private Request</h1>
+                        <div class="wcrwV gsCWf EJVsl">
+                            <div class="AYaOY TNIio UYvZu gsCWf EJVsl OtrSK DeYlt">
+                                <svg onclick="deletePrettyModal()"                                
+                                width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <g>
+                                        <path d="M16 16L12 12M12 12L8 8M12 12L16 8M12 12L8 16" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                                    </g>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="TImJU">
+                      <p>${user} requested a private stream.</p>
+                      <p>They have ${credits} credits.</p>
+                      <br>
+                      <br>
+                      <div style="display:flex;">
+                          <button class="AYaOY" onclick="openPrivateRequest('${userToken}','${credits}')">Accept</button>
+                          <button style="margin-left:10px;" onclick="declinePrivateRequest('${userToken}')" class="AYaOY">Decline</button>
+                      </div>
+                    </div>
+                </div>
+            </div>
+  `;
+  document.body.appendChild(prettyModal);
   console.log(user, credits);
-  const newRequest = document.createElement("div");
-  newRequest.style.display = "flex";
-  const nameText = document.createElement("h3");
-  nameText.innerText = `${user} (${credits} credits)`;
-  const acceptButton = document.createElement("button");
-  acceptButton.innerText = "Accept";
-  acceptButton.setAttribute("id", privateRequests.length);
-  acceptButton.onclick = openPrivateRequest;
-
-  const declineButton = document.createElement("button");
-  declineButton.innerText = "Decline";
-  declineButton.setAttribute("id", privateRequests.length);
-  declineButton.onclick = declinePrivateRequest;
-
-  newRequest.appendChild(nameText);
-  newRequest.appendChild(acceptButton);
-  newRequest.appendChild(declineButton);
-  document.getElementById("privateRequestDiv").appendChild(newRequest);
 };
 const updateTipRelatedUI = async () => {
   const tips = await get_donations(
@@ -202,12 +222,12 @@ const updateTipRelatedUI = async () => {
   console.log({ tips });
   renderGoals();
 };
-const declinePrivateRequest = async () => {
-  console.log(privateRequests[event.srcElement.id]);
-  const { userToken, userName, credits } =
-    privateRequests[event.srcElement.id].Attributes;
+const declinePrivateRequest = async userToken => {
+  deletePrettyModal();
+  console.log({ userToken });
+
   // event.srcElement.disabled = true;
-  event.srcElement.parentElement.remove();
+
   await send_event_with_attributes(
     region, // Replace with your chatroom region
     secretAccessKey, // Replace with your secret access key
@@ -219,13 +239,47 @@ const declinePrivateRequest = async () => {
     }
   );
 };
-const openPrivateRequest = async () => {
-  console.log(privateRequests[event.srcElement.id]);
-  const { userToken, userName, credits } =
-    privateRequests[event.srcElement.id].Attributes;
-  // event.srcElement.disabled = true;
-  event.srcElement.parentElement.remove();
-  document.getElementById("pauseChatButton").innerText = "loading...";
+const showPrettyModal = (title, content) => {
+  const prettyModal = document.createElement("div");
+  prettyModal.setAttribute("id", "alert-popup");
+  prettyModal.classList.add("DuKSh");
+  prettyModal.classList.add("EJVsl");
+  prettyModal.classList.add("OtrSK");
+  prettyModal.classList.add("cNGwx");
+  prettyModal.classList.add("gsCWf");
+  prettyModal.style.backgroundColor = "rgba(0, 170, 255, 0.58)";
+  prettyModal.innerHTML = `
+   <div class="GodhZ gsCWf EJVsl OtrSK CzomY">
+                <div class="ExGby HruDj">
+                    <div class="tSrNa gsCWf EJVsl zsSLy">
+                        <h1 class="USKIn">${title}</h1>
+                        <div class="wcrwV gsCWf EJVsl">
+                            <div class="AYaOY TNIio UYvZu gsCWf EJVsl OtrSK DeYlt">
+                                <svg onclick="deletePrettyModal()"                                
+                                width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <g>
+                                        <path d="M16 16L12 12M12 12L8 8M12 12L16 8M12 12L8 16" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                                    </g>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="TImJU">
+                        <p>${content}</p>
+                        <br>
+                        <br>
+                        <button
+                        onclick="deletePrettyModal()"
+                        class="AYaOY">OK</button>
+                    </div>
+                </div>
+            </div>
+  `;
+  document.getElementsByClassName("wrapper")[0].append(prettyModal);
+};
+const openPrivateRequest = async (userToken, credits) => {
+  deletePrettyModal();
+  // document.getElementById("pauseChatButton").innerText = "loading...";
   const response = await send_event(
     region, // Replace with your chatroom region
     secretAccessKey, // Replace with your secret access key
@@ -233,8 +287,8 @@ const openPrivateRequest = async () => {
     channel_id,
     "private-channel-start"
   );
-  document.getElementById("preview").style.display = "none";
-  insertImage("./assets/private.png");
+  // document.getElementById("preview").style.display = "none";
+  // insertImage("./assets/private.png");
   await pause_continue_channel(
     region, // Replace with your chatroom region
     secretAccessKey, // Replace with your secret access key
@@ -245,11 +299,9 @@ const openPrivateRequest = async () => {
   console.log({
     response,
   });
-  document.getElementById("pauseChatButton").innerText = "Continue Stream";
+  // document.getElementById("pauseChatButton").innerText = "Continue Stream";
   document.getElementById("sendButton").disabled = true;
-  document.getElementById(
-    "streamStatus"
-  ).innerHTML = `<h4>Stream Status: Paused. (People can see you are active but can't watch or send messages)</h4>`;
+  document.getElementById("streamType-stat").innerText = `Stream Type: PRIVATE`;
   await send_event_with_attributes(
     region, // Replace with your chatroom region
     secretAccessKey, // Replace with your secret access key
@@ -265,6 +317,11 @@ const openPrivateRequest = async () => {
   priavteSecondsRemaining = (credits * 30) / privateStreamPrice;
   console.log(privateStreamPrice);
   showPrivateChatModal((credits * 30) / privateStreamPrice);
+  document.getElementById("messages").style.display = "none";
+  document.getElementById("privateMessages").style.display = "flex";
+  document.getElementById("inputContainer").style.display = "none";
+  document.getElementById("privateInputContainer").style.display = "flex";
+  showPrettyModal("SUCCESS", "You are now in private stream!");
 };
 const createMessage = text => {
   const newElement = document.createElement("div");
@@ -399,15 +456,15 @@ const removeExistingTags = async () => {
   }
 };
 const createChannel = async () => {
-  document.getElementById("preview").remove();
-  document.getElementById("preview-container").innerHTML =
-    '<canvas style="width:100%;" id="preview"></canvas>';
-  const previewEl = document.getElementById("preview");
-  window.client.attachPreview(previewEl);
+  // document.getElementById("preview").remove();
+  // document.getElementById("preview-container").innerHTML =
+  //   '<canvas style="width:100%;" id="preview"></canvas>';
+  // const previewEl = document.getElementById("preview");
+  // window.client.attachPreview(previewEl);
+  // document.getElementById("preview").style.display = "block";
   if (document.getElementById("statusImage")) {
     document.getElementById("statusImage").remove();
   }
-  document.getElementById("preview").style.display = "block";
   document.getElementById("start").innerText = "STARTING...";
   document.getElementById("start").disabled = true;
   document.getElementById("start").style.backgroundColor = "gray";
@@ -487,6 +544,12 @@ const createChannel = async () => {
     console.log({ err });
     return;
   }
+  document.getElementById("preview").remove();
+  document.getElementById("preview-container").innerHTML =
+    '<canvas style="width:100%;" id="preview"></canvas>';
+  const previewEl = document.getElementById("preview");
+  window.client.attachPreview(previewEl);
+  document.getElementById("preview").style.display = "block";
   const health = await window.client.getConnectionState();
 
   console.log({ health });
@@ -605,8 +668,12 @@ const socketEventListener = () => {
       data.Type == "EVENT" &&
       data.EventName == "request-private-chat"
     ) {
-      alert("Private Chat Requested By Viewer");
-      addPrivateRequest(data.Attributes.userName, data.Attributes.credits);
+      // alert("Private Chat Requested By Viewer");
+      addPrivateRequest(
+        data.Attributes.userName,
+        data.Attributes.credits,
+        data.Attributes.userToken
+      );
       privateRequests.push(data);
       console.log({ request: data });
     }
@@ -875,9 +942,13 @@ function onActiveStateChange(active) {
   const streamConfigSelectEl = document.getElementById("stream-config");
   // const inputEl = document.getElementById("stream-key");
   // inputEl.disabled = active;
-  start.disabled = active;
+  if (start) {
+    start.disabled = active;
+  }
   //   stop.disabled = !active;
-  streamConfigSelectEl.disabled = active;
+  if (streamConfigSelectEl) {
+    streamConfigSelectEl.disabled = active;
+  }
 }
 async function createClient() {
   if (window.client) {
@@ -1149,7 +1220,10 @@ function startPrivateTimer(duration, display) {
           : priavteSecondsRemaining;
 
       display.textContent =
-        privateMinutesReamining + ":" + priavteSecondsRemaining;
+        "Private Timer: " +
+        privateMinutesReamining +
+        ":" +
+        priavteSecondsRemaining;
       timeElapsed++;
       console.log(timeElapsed);
       if (--timer < 0) {
@@ -1160,13 +1234,16 @@ function startPrivateTimer(duration, display) {
         setTimeout(() => {
           endPrivateChat();
         }, 1000);
-        alert("Timer has ended! Ending Stream!");
+        showPrettyModal(
+          "Stream Ended",
+          "Timer has ended, automatically ending private stream and starting public stream."
+        );
       }
     }
   }, 1000); // Timer ticks every 1 second
 }
 const privateStreamHealthInterval = async () => {
-  const indicator = document.getElementById("privateStreamHealthIndicator");
+  const indicator = document.getElementById("health-stat");
   try {
     const stream_status = await get_stream_information(
       region,
@@ -1177,16 +1254,16 @@ const privateStreamHealthInterval = async () => {
     if (stream_status.stream.health == "HEALTHY") {
       isPrivateStreamHealthy = true;
       indicator.style.color = "green";
-      indicator.innerText = "HEALTHY";
+      indicator.innerText = "Stream Health: HEALTHY";
     } else {
       isPrivateStreamHealthy = false;
       indicator.style.color = "red";
-      indicator.innerText = "UNHEALTHY";
+      indicator.innerText = "Stream Health: UNHEALTHY";
     }
   } catch (e) {
     isPrivateStreamHealthy = false;
     indicator.style.color = "red";
-    indicator.innerText = "UNHEALTHY";
+    indicator.innerText = "Stream Health: UNHEALTHY";
     console.log(e);
   }
 };
@@ -1201,52 +1278,9 @@ const handlePrivatePauseAndResume = async () => {
 };
 const showPrivateChatModal = credits_to_be_spent => {
   clearInterval(updateViewerInterval);
-  const modalContainer = document.createElement("div");
-  modalContainer.setAttribute("id", "modal");
-  modalContainer.setAttribute("class", "modal");
-  const modalContent = document.createElement("div");
-  modalContent.setAttribute("class", "modal-content-full");
-  modalContainer.style.display = "block";
-  window.onclick = function (event) {
-    if (event.target == modalContainer) {
-      modalContainer.remove();
-      privateConnection.close();
-      privateConnection.removeEventListener("open", privateChatSocketListener);
-    }
-  };
-  modalContainer.appendChild(modalContent);
-  modalContent.innerHTML = `
-  <h3 style="margin:0;">Private Messages & Private Stream</h3>
-  <div style="display:flex;margin:0;">
-    <p>Time Remaining:&nbsp;</p> 
-    <p id="privateCredits">${priavteSecondsRemaining}</p>
-    <p>&nbsp;| Stream : </p>
-    <p id="privateStreamHealthIndicator"></p>
-  </div>
-  <section class="container">
-  <canvas id="private-preview" style="max-width: 100%"></canvas>
-  </section>
-  <div
-      id="privateMessages"
-      style="
-        display: flex;
-        flex-direction: column;
-        overflow-y: auto;
-        height: 175px;
-      "
-    ></div>
-    <div id="messageBox">
-      <input type="text" id="privateTextBox" />
-      <button id="psendButton" disabled onclick="sendPrivateFunction()">Send</button>
-      <button onclick="endPrivateChat()" id="pendChatButton" disabled>End Chat</button>
-      <button onclick="addPrivateChatMinute()" id="addMinute" disabled>Add Minute</button>
-      <button onclick="handlePrivatePauseAndResume()" id="pause-button">Pause For More Funds</button>
 
-    </div>
-  `;
-
-  document.body.appendChild(modalContainer);
-  const display = document.querySelector("#privateCredits");
+  // document.body.appendChild(modalContainer);
+  const display = document.querySelector("#private-time-remaining-display");
   timeElapsed = 0;
   startPrivateTimer(credits_to_be_spent, display);
   startPrivateStream();
@@ -1264,9 +1298,9 @@ const privateChatInitalize = async () => {
   privateConnection.addEventListener("open", privateChatSocketListener);
 };
 const privateChatSocketListener = () => {
-  document.getElementById("psendButton").disabled = false;
-  document.getElementById("pendChatButton").disabled = false;
-  document.getElementById("addMinute").disabled = false;
+  // document.getElementById("psendButton").disabled = false;
+  // document.getElementById("pendChatButton").disabled = false;
+  // document.getElementById("addMinute").disabled = false;
   setTimeout(() => {
     let credit_remainder = setInterval(() => {
       if (timeElapsed >= 30) {
@@ -1297,14 +1331,28 @@ const privateChatSocketListener = () => {
     console.log({ data });
     if (data.Type == "MESSAGE") {
       const newElement = document.createElement("div");
-      newElement.style.padding = "10px";
-      newElement.style.border = "1px solid black";
-      newElement.style.borderRadius = "10px";
-      newElement.style.margin = "10px";
-      newElement.innerHTML = `${data.Sender.Attributes.displayName}: ${data.Content}`;
-      const messagesContainer = document.getElementById("privateMessages");
-      messagesContainer.append(newElement);
-      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      newElement.classList.add("message");
+      newElement.classList.add("message-left");
+      newElement.innerHTML = `
+  <div class="img-container">
+    <img
+      src="https://images.unsplash.com/photo-1502823403499-6ccfcf4fb453?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTd8fHByb2ZpbGUlMjBpbWFnZXxlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&w=500&q=60"
+      alt=""
+    />
+  </div>
+  <div class="text-container">
+    <div class="message-info">
+      <span class="name">Sri Veronica</span>
+      <span class="time">3:50 PM</span>
+    </div>
+    <p class="text">
+     ${data.Content}
+    </p>
+  </div>
+  `;
+      document
+        .getElementsByClassName("private-message-container")[0]
+        .prepend(newElement);
     }
     if (data.Type == "EVENT" && data.EventName == "delete-channel") {
       document.getElementById("psendButton").disabled = true;
@@ -1332,23 +1380,27 @@ const sendPrivateFunction = () => {
 };
 const endPrivateChat = async () => {
   //pendChatButton
+  document.getElementById("messages").style.display = "block";
+  document.getElementById("privateMessages").style.display = "none";
+  document.getElementById("inputContainer").style.display = "flex";
+  document.getElementById("privateInputContainer").style.display = "none";
   clearInterval(privateStreamHealthInterval);
   clearInterval(privateHealthCheckInterval);
   clearInterval(private_chat_timer_interval);
   isPrivateStreamHealthy = false;
-  document.getElementById("pendChatButton").innerText = "loading...";
-  document.getElementById("pendChatButton").disabled = true;
+  // document.getElementById("pendChatButton").innerText = "loading...";
+  // document.getElementById("pendChatButton").disabled = true;
   privateConnection.close();
   privateConnection.removeEventListener("open", privateChatSocketListener);
-  const previewEl = document.getElementById("preview");
-  window.client.attachPreview(previewEl);
+  // const previewEl = document.getElementById("preview");
+  // window.client.attachPreview(previewEl);
   // -------
-  document.getElementById("pauseChatButton").innerText = "loading...";
+  // document.getElementById("pauseChatButton").innerText = "loading...";
   var element = document.getElementById("statusImage");
   if (typeof element != "undefined" && element != null) {
     element.remove();
   }
-  document.getElementById("preview").style.display = "block";
+  // document.getElementById("preview").style.display = "block";
   await pause_continue_channel(
     region,
     secretAccessKey,
@@ -1356,10 +1408,9 @@ const endPrivateChat = async () => {
     channel_id,
     "not-paused"
   );
-  document.getElementById(
-    "streamStatus"
-  ).innerHTML = `<h4>Stream Status: Active (People Can Watch And Send Messages In Chat.)</h4>`;
-  document.getElementById("pauseChatButton").innerText = "Pause Stream";
+  document.getElementById("streamType-stat").innerText = `Stream Type: PUBLIC`;
+
+  // document.getElementById("pauseChatButton").innerText = "Pause Stream";
   document.getElementById("sendButton").disabled = false;
   // -------
   console.log("Stopping Private Stream");
@@ -1394,7 +1445,6 @@ const endPrivateChat = async () => {
     secretAccessId, // Replace with your secret key id
     channel_id_private
   );
-  document.getElementById("modal").remove();
   setInterval(updateViewerInterval, 5000);
 };
 const addTag = async () => {
@@ -1508,9 +1558,9 @@ const startPrivateStream = async () => {
   stopBroadcast();
   const streamKey = "sk_us-east-1_0uYJV4j99Jvi_3VC66J1GhpVMvD4jqYtHVBh8gRjGRH";
   const ingestEndpoint = "562d3781dc12.global-contribute.live-video.net";
-  const privatePreview = document.getElementById("private-preview");
+  // const privatePreview = document.getElementById("private-preview");
   console.log("Attaching Preview");
-  window.client.attachPreview(privatePreview);
+  // window.client.attachPreview(privatePreview);
   try {
     console.log("Starting Private Stream");
     await window.client.startBroadcast(streamKey, ingestEndpoint);

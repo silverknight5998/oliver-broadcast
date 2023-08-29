@@ -644,7 +644,77 @@ video {
   -o-border-radius: 50%;
   overflow: hidden;
 }
-
+.private-input-container {
+  display: none;
+  align-items: center;
+  padding-left: 0.5rem;
+  padding-right: 6.5rem;
+  margin-top: 1.5rem;
+  border: 1px solid var(--stream-section-border-color);
+  border-radius: 2rem !important;
+  -webkit-border-radius: 2rem !important;
+  -moz-border-radius: 2rem !important;
+  -ms-border-radius: 2rem !important;
+  -o-border-radius: 2rem !important;
+  position: relative;
+}
+.wrapper.full-width .private-input-container {
+  background: rgba(255, 255, 255, 0.3);
+}
+.private-input-container .img-container {
+  width: 50px;
+  min-width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  -webkit-border-radius: 50%;
+  -moz-border-radius: 50%;
+  -ms-border-radius: 50%;
+  -o-border-radius: 50%;
+  overflow: hidden;
+}
+.private-input-container .img-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.private-input-container .input-message {
+  height: 4rem;
+  background: transparent;
+  font-size: 12px !important;
+  padding-left: 1rem !important;
+  margin-top: 0 !important;
+  border: none !important;
+}
+.private-message-container {
+  display: none;
+  flex-direction: column-reverse !important;
+  overflow-x: hidden;
+  overflow-y: scroll;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  margin-top: auto;
+}
+.private-message-container::-webkit-scrollbar {
+  display: none;
+}
+.private-message-container {
+  height: auto;
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent 0,
+    black var(--top-mask-size, 0px),
+    black calc(100% - var(--bottom-mask-size, 0px)),
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0,
+    black var(--top-mask-size, 0px),
+    black calc(100% - var(--bottom-mask-size, 0px)),
+    transparent 100%
+  );
+  /* --top-mask-size: 100px; this value controls the fade-out container height */
+}
 .input-container .img-container img {
   width: 100%;
   height: 100%;
