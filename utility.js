@@ -319,6 +319,7 @@ const openPrivateRequest = async (userToken, credits) => {
   showPrivateChatModal((credits * 30) / privateStreamPrice);
   document.getElementById("messages").style.display = "none";
   document.getElementById("privateMessages").style.display = "flex";
+  document.getElementById("black-container").style.display = "none";
   document.getElementById("inputContainer").style.display = "none";
   document.getElementById("privateInputContainer").style.display = "flex";
   showPrettyModal("SUCCESS", "You are now in private stream!");
@@ -1382,6 +1383,7 @@ const sendPrivateFunction = () => {
 const endPrivateChat = async () => {
   //pendChatButton
   document.getElementById("messages").style.display = "block";
+  document.getElementById("black-container").style.display = "flex";
   document.getElementById("privateMessages").style.display = "none";
   document.getElementById("inputContainer").style.display = "flex";
   document.getElementById("privateInputContainer").style.display = "none";
