@@ -413,7 +413,7 @@ const endChat = async () => {
   );
   await delete_channel(region, secretAccessKey, secretAccessId, channel_id);
   document.getElementById("preview").style.display = "none";
-  document.getElementsByClassName("message-container")[0].innerHTML = "";
+  // document.getElementsByClassName("message-container")[0].innerHTML = "";
   goals = [];
   // document.getElementById("tagsList").innerHTML = "";
   insertImage("./assets/offline.jpeg");
@@ -544,6 +544,7 @@ const createChannel = async () => {
     console.log({ err });
     return;
   }
+  createMessage("Stream Started.");
   document.getElementById("preview").remove();
   document.getElementById("preview-container").innerHTML =
     '<canvas style="width:100%;" id="preview"></canvas>';
