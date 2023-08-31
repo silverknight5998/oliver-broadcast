@@ -31,6 +31,7 @@ let timeElapsed = 0;
 let roomRules = "";
 let deduct = "0";
 let messageUserId = "";
+let channel_description = "";
 const tagsList = [
   "music",
   "sports",
@@ -185,7 +186,7 @@ const addPrivateRequest = (user, credits, userToken) => {
                       <br>
                       <br>
                       <div style="display:flex;">
-                          <button class="AYaOY" onclick="openPrivateRequest('${userToken}','${credits}')">Accept</button>
+                          <button class="AYaOY" onclick="openPrivateRequest('${userToken}','${credits}','${user}')">Accept</button>
                           <button style="margin-left:10px;" onclick="declinePrivateRequest('${userToken}')" class="AYaOY">Decline</button>
                       </div>
                     </div>
@@ -277,7 +278,7 @@ const showPrettyModal = (title, content) => {
   `;
   document.getElementsByClassName("wrapper")[0].append(prettyModal);
 };
-const openPrivateRequest = async (userToken, credits) => {
+const openPrivateRequest = async (userToken, credits, user) => {
   deletePrettyModal();
   // document.getElementById("pauseChatButton").innerText = "loading...";
   const response = await send_event(
@@ -323,6 +324,7 @@ const openPrivateRequest = async (userToken, credits) => {
   document.getElementById("inputContainer").style.display = "none";
   document.getElementById("privateInputContainer").style.display = "flex";
   showPrettyModal("SUCCESS", "You are now in private stream!");
+  document.getElementById("views-stat").innerText = `${user} watching`;
 };
 const createMessage = text => {
   const newElement = document.createElement("div");
@@ -514,6 +516,9 @@ const createChannel = async () => {
   roomRules = roomRules.replace(/= @ _ \/ -/g, "\n");
 
   privateStreamViewPrice = channel_details.tags["private-view-cost"];
+  channel_description = channel_details.tags["description"] || "";
+  document.getElementById("channel-description-text").innerText =
+    channel_description;
   for (let key in roomDetails.tags) {
     if (roomDetails.tags[key] == "tag") {
       // insertSingleTag(key);
@@ -1382,6 +1387,8 @@ const sendPrivateFunction = () => {
 };
 const endPrivateChat = async () => {
   //pendChatButton
+  document.getElementById("#private-time-remaining-display").innerText = "-";
+  document.getElementById("views-stat").innerText = `0 watching`;
   document.getElementById("messages").style.display = "block";
   document.getElementById("black-container").style.display = "flex";
   document.getElementById("privateMessages").style.display = "none";
@@ -1863,6 +1870,29 @@ const updateRoomRules = () => {
     escapedRoomRules
   );
 };
+const updateChannelDescription = () => {
+  const channelDescription = document.getElementById("channel-description");
+  update_channel_description(
+    region,
+    secretAccessKey,
+    secretAccessId,
+    channel_id,
+    channelDescription.value
+  );
+  document.getElementById("channel-description-text").innerText =
+    channelDescription.value;
+  channel_description = channelDescription.value;
+  send_event_with_attributes(
+    region,
+    secretAccessKey,
+    secretAccessId,
+    channel_id,
+    "channel-description-update",
+    {
+      description: channelDescription.value,
+    }
+  );
+};
 const saveSettings = async () => {
   try {
     await Promise.all([
@@ -1871,6 +1901,7 @@ const saveSettings = async () => {
       updateRoomRules(),
       saveAllGoals(),
       updateTagsInDb(),
+      updateChannelDescription(),
     ]);
   } catch (err) {
     console.log({ err });
@@ -1941,7 +1972,11 @@ const settingsModal = () => {
               <h2 style="font-size: 18px;">Edit Room Rules</h2>
               <textarea id="roomRulesInput">${roomRules}</textarea>
             </div>
-
+            
+            <div>
+            <h2 style="font-size: 18px;">Channel Description</h2>
+              <input id="channel-description" placeholder="Channel Description..." value="${channel_description}" />
+            </div>
 
             <div>
               <h2 style="font-size: 18px;">Stream Goals</h2>
