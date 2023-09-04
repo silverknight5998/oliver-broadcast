@@ -487,14 +487,22 @@ const createChannel = async () => {
   }
   const start = document.getElementById("start");
   start.disabled = true;
-  erase_all_messages(region, secretAccessKey, secretAccessId, "oliverdb");
+  try {
+    erase_all_messages(region, secretAccessKey, secretAccessId, "oliverdb");
+  } catch (x) {
+    console.log({ "Error In Deleting Past Messages": x });
+  }
   console.log({ region, secretAccessKey, secretAccessId, channel_id });
-  delete_streamer_donations(
-    region,
-    secretAccessKey,
-    secretAccessId,
-    channel_id
-  );
+  try {
+    delete_streamer_donations(
+      region,
+      secretAccessKey,
+      secretAccessId,
+      channel_id
+    );
+  } catch (x) {
+    console.log({ "Error In Deleting Past Donations": x });
+  }
   const channel_details = await get_room(
     region, // Replace with your chatroom region
     secretAccessKey, // Replace with your secret access key
@@ -1366,9 +1374,13 @@ const privateChatSocketListener = () => {
       document.getElementById("pendChatButton").disabled = true;
     }
     if (data.Type == "EVENT" && data.EventName == "viewer-ended") {
-      alert(
+      showPrettyModal(
+        "Alert",
         "Viewer Left Private Stream. Click End Chat To Renew Public Stream."
       );
+      // alert(
+      //   "Viewer Left Private Stream. Click End Chat To Renew Public Stream."
+      // );
     }
     if (data.Type == "EVENT" && data.EventName == "buy-credits") {
       timer += parseInt(data.Attributes.extraTime);
