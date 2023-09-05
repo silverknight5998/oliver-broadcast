@@ -69,6 +69,22 @@ const insertPausePlaceholderIVS = () => {
   };
   client.disableAudio();
 };
+const toasts = new Toasts({
+  width: 300,
+  timing: "ease",
+  duration: "0.5s",
+  dimOld: false,
+  position: "top-right",
+});
+
+// Function to create and show a toast
+function showToast(title, content, style) {
+  toasts.push({
+    title: title,
+    content: content,
+    style: style,
+  });
+}
 const removePausePlaceholderIVS = () => {
   client.removeImage("vod-0");
   client.enableAudio();
@@ -214,9 +230,10 @@ const updateTipRelatedUI = async () => {
       highest_tip = parseFloat(tip.donation.S);
     }
   });
-  document.getElementById("latest-tipper-name-span").innerText = recent_tipper;
+  document.getElementById("latest-tipper-name-span").innerText =
+    "Latest tipper: " + recent_tipper;
   document.getElementById("highest-tipper-name-span").innerText =
-    highest_tipper;
+    "Highest tipper: " + highest_tipper;
 
   document.getElementById("tip-stat").innerText = `Tips: ${total_donations}$`;
   console.log({ total_donations });
@@ -321,6 +338,7 @@ const openPrivateRequest = async (userToken, credits, user) => {
   document.getElementById("messages").style.display = "none";
   document.getElementById("privateMessages").style.display = "flex";
   document.getElementById("black-container").style.display = "none";
+  document.getElementById("private-black-container").style.display = "flex";
   document.getElementById("inputContainer").style.display = "none";
   document.getElementById("privateInputContainer").style.display = "flex";
   showPrettyModal("SUCCESS", "You are now in private stream!");
@@ -558,7 +576,7 @@ const createChannel = async () => {
     console.log({ err });
     return;
   }
-  createMessage("Stream Started.");
+  // createMessage("Stream Started.");
   document.getElementById("preview").remove();
   document.getElementById("preview-container").innerHTML =
     '<canvas style="width:100%;" id="preview"></canvas>';
@@ -662,6 +680,8 @@ const socketEventListener = () => {
       createMessage("|| Goals Updated By Streamer ||");
     }
     if (data.Type == "EVENT" && data.EventName == "tip-event") {
+      createMessage(data.Attributes["tipMessage"]);
+      showToast("Tip", data.Attributes["tipMessage"], "success");
       updateTipRelatedUI();
     }
     if (data.Type == "EVENT" && data.EventName == "playback-request") {
@@ -704,10 +724,10 @@ function setError(message) {
 }
 const handleRoomRulesUpdate = rules => {
   roomRules = rules;
-  roomRules = roomRules.replace(/= @ _ \/ -/g, "<br>");
+  let roomRulesEscaped = roomRules.replace(/= @ _ \/ -/g, "<br>");
   document.getElementById(
     "room-rules"
-  ).innerHTML = `<p style='margin:0;font-size:16px;'>${roomRules}</p>`;
+  ).innerHTML = `<p style='margin:0;font-size:16px;'>${roomRulesEscaped}</p>`;
 };
 async function handleVideoDeviceSelect() {
   console.log("handleVideoDeviceSelect");
@@ -1040,24 +1060,39 @@ const updatePrivateStreamPrice = async () => {
     "private-stream-price-for-viewer"
   ).value;
 
-  privateStreamPrice = newPrice;
-  privateStreamViewPrice = newPriceView;
-  await update_private_stream_cost(
-    region,
-    secretAccessKey,
-    secretAccessId,
-    channel_id,
-    newPrice
-  );
-  await update_view_private_stream_cost(
-    region,
-    secretAccessKey,
-    secretAccessId,
-    channel_id,
-    newPriceView
-  );
+  if (newPrice == "" || newPriceView == "") {
+    showPrettyModal(
+      "Error",
+      "Stream Prices were invalid and are not affected!"
+    );
+    return;
+  }
+  if (privateStreamPrice != newPrice) {
+    await update_private_stream_cost(
+      region,
+      secretAccessKey,
+      secretAccessId,
+      channel_id,
+      newPrice
+    );
+  }
+  if (privateStreamViewPrice != newPriceView) {
+    await update_view_private_stream_cost(
+      region,
+      secretAccessKey,
+      secretAccessId,
+      channel_id,
+      newPriceView
+    );
+  }
+  if (
+    privateStreamPrice == newPrice &&
+    privateStreamViewPrice == newPriceView
+  ) {
+    return;
+  }
 
-  await send_event_with_attributes(
+  send_event_with_attributes(
     region, // Replace with your chatroom region
     secretAccessKey, // Replace with your secret access key
     secretAccessId, // Replace with your secret key id
@@ -1068,6 +1103,8 @@ const updatePrivateStreamPrice = async () => {
       newPriceView: newPriceView,
     }
   );
+  privateStreamPrice = newPrice;
+  privateStreamViewPrice = newPriceView;
 };
 const removeGoalInSettings = number => {
   document.getElementById(`goalContainer${number}`).remove();
@@ -1399,10 +1436,11 @@ const sendPrivateFunction = () => {
 };
 const endPrivateChat = async () => {
   //pendChatButton
-  document.getElementById("#private-time-remaining-display").innerText = "-";
+  document.getElementById("private-time-remaining-display").innerText = "-";
   document.getElementById("views-stat").innerText = `0 watching`;
   document.getElementById("messages").style.display = "block";
   document.getElementById("black-container").style.display = "flex";
+  document.getElementById("private-black-container").style.display = "none";
   document.getElementById("privateMessages").style.display = "none";
   document.getElementById("inputContainer").style.display = "flex";
   document.getElementById("privateInputContainer").style.display = "none";
@@ -1795,7 +1833,12 @@ const showDeviceSelectModal = () => {
                         display: flex;
                         justify-content: center;
                     ">
-                    <canvas id="preview"></canvas>
+                    <canvas id="preview" style="
+                        width: 300px;
+                        height: 300PX;
+                        OBJECT-FIT: cover;
+                        border-radius: 10px;
+                    "></canvas>
                     </div>
                     
                     <section class="container">
@@ -1884,6 +1927,9 @@ const updateRoomRules = () => {
 };
 const updateChannelDescription = () => {
   const channelDescription = document.getElementById("channel-description");
+  if (channel_description == channelDescription.value) {
+    return;
+  }
   update_channel_description(
     region,
     secretAccessKey,
@@ -1893,7 +1939,6 @@ const updateChannelDescription = () => {
   );
   document.getElementById("channel-description-text").innerText =
     channelDescription.value;
-  channel_description = channelDescription.value;
   send_event_with_attributes(
     region,
     secretAccessKey,
@@ -1921,6 +1966,7 @@ const saveSettings = async () => {
   deleteScrollModal();
 };
 const settingsModal = () => {
+  let temporaryRoomRules = roomRules.replace(/= @ _ \/ -/g, "&#13;&#10;");
   const prettyModal = document.createElement("div");
   prettyModal.setAttribute("id", "scroll-popup");
   prettyModal.classList.add("DuKSh");
@@ -1929,89 +1975,93 @@ const settingsModal = () => {
   prettyModal.classList.add("cNGwx");
   prettyModal.classList.add("gsCWf");
   prettyModal.style.backgroundColor = "rgba(0, 170, 255, 0.58)";
-  prettyModal.innerHTML = `
-  <!-- wrapper -->
-  <div class="GodhZ gsCWf EJVsl OtrSK CzomY">
-      <!-- container -->
-      <div class="ExGby HruDj">
-          <!-- header -->
-          <div class="tSrNa gsCWf EJVsl zsSLy">
-              <h1 class="USKIn">Stream Settings</h1>
+  prettyModal.innerHTML = `<div class="GodhZ gsCWf EJVsl OtrSK CzomY">
+  <!-- container -->
+  <div class="ExGby HruDj">
+      <!-- header -->
+      <div class="tSrNa gsCWf EJVsl zsSLy">
+          <h1 class="USKIn">Settings</h1>
 
-              <!-- buttons -->
-              <div class="wcrwV gsCWf EJVsl">
-                  <div class="AYaOY TNIio UYvZu gsCWf EJVsl OtrSK DeYlt">
-                      <svg onclick="deleteScrollModal()" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <g>
-                              <path d="M16 16L12 12M12 12L8 8M12 12L16 8M12 12L8 16" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
-                          </g>
-                      </svg>
-                  </div>
+          <!-- buttons -->
+          <div class="wcrwV gsCWf EJVsl">
+              <div class="AYaOY TNIio UYvZu gsCWf EJVsl OtrSK DeYlt">
+                  <svg onclick="deleteScrollModal()" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <g>
+                          <path d="M16 16L12 12M12 12L8 8M12 12L16 8M12 12L8 16" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                      </g>
+                  </svg>
               </div>
-          </div>
-
-          <!-- main-section -->
-          <div class="TImJU">
-              <!-- elements-container -->
-
-              
-              <div><h2
-              style="font-size: 18px;"
-              >Edit Channel Name</h2>
-              <input id="channel-rename-field" value="${
-                document.getElementsByClassName("stream-title")[0].innerText
-              }"/>
-              </div>
-
-              <div>
-              <h2 style="font-size: 18px;">Set Private Stream Costs (Per 30 Seconds)</h2>
-              <div style="display:flex;">
-                <input id='private-stream-price' type='number' value='${parseInt(
-                  privateStreamPrice
-                )}'/>
-                
-                </div>
-                <h2 style="font-size: 18px;">Set Private Stream Costs For Viewer (Per 30 Seconds)</h2>
-              <div style="display:flex;">
-                <input id='private-stream-price-for-viewer' type='number' value='${parseInt(
-                  privateStreamViewPrice
-                )}'/>
-                </div>
-
-            </div>
-
-            <div>
-              <h2 style="font-size: 18px;">Edit Room Rules</h2>
-              <textarea id="roomRulesInput">${roomRules}</textarea>
-            </div>
-            
-            <div>
-            <h2 style="font-size: 18px;">Channel Description</h2>
-              <input id="channel-description" placeholder="Channel Description..." value="${channel_description}" />
-            </div>
-
-            <div>
-              <h2 style="font-size: 18px;">Stream Goals</h2>
-              <p>INFO: Goals are automatically sorted by amount and shown to the viewers. After changing, click save button for changes to take effect.</p>
-              <div id="goals"></div>
-              <button class='stream-buttons' onclick="addGoalFunction()">Add A Goal</button>
-            </div>
-
-
-          <div>
-            <h2 style="font-size: 18px;">Add & Remove Tags</h2>
-            <h3 style="font-size: 16px;">Available Tags</h3>
-            <div id="available-tags" style="display:flex;flex-wrap:wrap;"></div>
-            <h3 style="font-size: 16px;">Selected Tags</h3>
-            <div id="selected-tags" style="display:flex;flex-wrap:wrap;"></div>
-          </div>
-          <hr/>
-          <div style="display:flex;">
-            <button class="AYaOY" onclick="saveSettings()">Save</button>
-            <button style="margin-left:10px;" onclick="deleteScrollModal()" class="AYaOY">Cancel</button>
           </div>
       </div>
+
+      <!-- main-section -->
+      <div class="TImJU">
+          <!-- elements-container -->
+
+          <div data-simplebar="init" class="elements-container simplebar-scrollable-y"><div class="simplebar-wrapper" style="margin: 0px -11px 0px 0px;"><div class="simplebar-height-auto-observer-wrapper"><div class="simplebar-height-auto-observer"></div></div><div class="simplebar-mask"><div class="simplebar-offset" style="right: 0px; bottom: 0px;"><div class="simplebar-content-wrapper" tabindex="0" role="region" aria-label="scrollable content" style="height: auto; overflow: hidden scroll;"><div class="simplebar-content" style="padding: 0px 11px 0px 0px;">
+          <div><h2
+          style="font-size: 18px;"
+          >Edit Channel Name</h2>
+          <input id="channel-rename-field" value="${
+            document.getElementsByClassName("stream-title")[0].innerText
+          }"/>
+          </div>
+
+          <div>
+          <h2 style="font-size: 18px;">Set Private Stream Costs (Per 30 Seconds)</h2>
+          <div style="display:flex;">
+            <input id='private-stream-price' type='number' value='${parseInt(
+              privateStreamPrice
+            )}'/>
+            
+            </div>
+            <h2 style="font-size: 18px;">Set Private Stream Costs For Viewer (Per 30 Seconds)</h2>
+          <div style="display:flex;">
+            <input id='private-stream-price-for-viewer' type='number' value='${parseInt(
+              privateStreamViewPrice
+            )}'/>
+            </div>
+
+        </div>
+
+        <div>
+          <h2 style="font-size: 18px;">Edit Room Rules</h2>
+          <textarea id="roomRulesInput">${temporaryRoomRules}</textarea>
+        </div>
+        
+        <div>
+        <h2 style="font-size: 18px;">Channel Description</h2>
+          <input id="channel-description" placeholder="Channel Description..." value="${channel_description}" />
+        </div>
+
+        <div>
+          <h2 style="font-size: 18px;">Stream Goals</h2>
+          <p>INFO: Goals are automatically sorted by amount and shown to the viewers. After changing, click save button for changes to take effect.</p>
+          <div id="goals"></div>
+          <button class='stream-buttons' onclick="addGoalFunction()">Add A Goal</button>
+        </div>
+
+
+      <div>
+        <h2 style="font-size: 18px;">Add & Remove Tags</h2>
+        <h3 style="font-size: 16px;">Available Tags</h3>
+        <div id="available-tags" style="display:flex;flex-wrap:wrap;"></div>
+        <h3 style="font-size: 16px;">Selected Tags</h3>
+        <div id="selected-tags" style="display:flex;flex-wrap:wrap;"></div>
+      </div>
+      <hr/>
+      
+
+
+              
+          </div></div></div></div><div class="simplebar-placeholder" style="width: 671px; height: 1522px;"></div></div><div class="simplebar-track simplebar-horizontal" style="visibility: hidden;"><div class="simplebar-scrollbar" style="width: 0px; display: none;"></div></div><div class="simplebar-track simplebar-vertical" style="visibility: visible;"><div class="simplebar-scrollbar" style="height: 145px; display: block; transform: translate3d(0px, 325px, 0px);"></div></div></div>
+          <div style="display:flex;">
+        <button class="AYaOY" onclick="saveSettings()">Save</button>
+        <button style="margin-left:10px;" onclick="deleteScrollModal()" class="AYaOY">Cancel</button>
+      </div>
+      </div>
   </div>
+</div>
   `;
   document.body.appendChild(prettyModal);
   // document.getElementsByClassName("wrapper")[0].append(prettyModal);
@@ -2022,3 +2072,5 @@ const settingsModal = () => {
 
 showDeviceSelectModal();
 init();
+
+// <div class="TImJU">

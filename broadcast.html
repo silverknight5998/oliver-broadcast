@@ -8,10 +8,15 @@
       href="https://fs.codelinden.com/wp-content/themes/hello-child/style.css"
     />
     <link rel="stylesheet" href="broadcast.css" />
-
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/simplebar@latest/dist/simplebar.css"
+    />
+    <script src="https://unpkg.com/simplebar@latest/dist/simplebar.min.js"></script>
     <!-- poppins font -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="./toasts.css" />
     <link rel="stylesheet" href="./popup-styles.css" />
     <link
       href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
@@ -71,6 +76,29 @@
               width: 100%;
               justify-content: center;
               align-items: center;
+              display: none;
+            "
+            id="private-black-container"
+            class="black-container"
+          >
+            <button
+              onclick="endPrivateChat()"
+              id="endPrivateChatButton"
+              class="button-1"
+            >
+              <i
+                style="font-family: 'Font Awesome 6 Free' !important"
+                class="fa-solid fa-stop"
+                id="audioTrackIconUnMute"
+              ></i>
+            </button>
+          </div>
+          <div
+            style="
+              display: flex;
+              width: 100%;
+              justify-content: center;
+              align-items: center;
             "
             id="black-container"
             class="black-container"
@@ -124,7 +152,7 @@
             >
               <i
                 style="font-family: 'Font Awesome 6 Free' !important"
-                class="fa-solid fa-xmark"
+                class="fa-solid fa-stop"
                 id="audioTrackIconUnMute"
               ></i>
             </button>
@@ -307,15 +335,15 @@
             <!-- chatbox-tip-container -->
             <div class="chatbox-tip-container">
               <p class="chatbox-tip-text">
-                Latest tipper: <span id="latest-tipper-name-span"></span>
+                <span id="latest-tipper-name-span"></span>
               </p>
               <p class="chatbox-tip-text">
-                Highest tipper: <span id="highest-tipper-name-span"></span>
+                <span id="highest-tipper-name-span"></span>
               </p>
             </div>
 
             <!-- message-container -->
-            <div class="message-container" id="messages"></div>
+            <div class="message-container" id="messages"><div></div></div>
             <div class="private-message-container" id="privateMessages"></div>
 
             <!-- input-container -->
@@ -852,6 +880,8 @@
       src="https://kit.fontawesome.com/a926154df8.js"
       crossorigin="anonymous"
     ></script>
+    <script src="./popup-scripts.js"></script>
+    <script src="./toasts-script.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://code.jquery.com/ui/1.13.1/jquery-ui.min.js"></script>
     <script src="https://web-broadcast.live-video.net/1.2.0/amazon-ivs-web-broadcast.js"></script>
