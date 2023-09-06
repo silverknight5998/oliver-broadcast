@@ -202,7 +202,7 @@ const addPrivateRequest = (user, credits, userToken) => {
                       <br>
                       <br>
                       <div style="display:flex;">
-                          <button class="AYaOY" onclick="openPrivateRequest('${userToken}','${credits}','${user}')">Accept</button>
+                          <button class="AYaOY" onclick="openPrivateRequest('${userToken}','${credits}','${user}')">Join Private</button>
                           <button style="margin-left:10px;" onclick="declinePrivateRequest('${userToken}')" class="AYaOY">Decline</button>
                       </div>
                     </div>
@@ -407,6 +407,8 @@ const sendFunction = async () => {
 };
 // -----
 const endChat = async () => {
+  document.getElementById("views-stat").innerText = `0 watching`;
+  document.getElementsByClassName("viewers-count")[0].innerText = `0 watching`;
   clearInterval(updateViewerInterval);
   // document.getElementById("viewsSection").style.display = "none";
   channelConnection.close();
@@ -438,6 +440,7 @@ const endChat = async () => {
   goals = [];
   // document.getElementById("tagsList").innerHTML = "";
   insertImage("./assets/offline.jpeg");
+  showPrettyModal("SUCCESS", "Stream Ended!");
   // document.getElementById(
   //   "streamStatus"
   // ).innerHTML = `<h4>Stream Status: OFFLINE</h4>`;
@@ -497,7 +500,8 @@ const createChannel = async () => {
     audioSelectEl.value == "Choose Option" ||
     audioSelectEl.value == "None"
   ) {
-    alert("Please select a video and audio device");
+    showPrettyModal("Error", "Please select a video and audio device");
+
     document.getElementById("start").innerText = "Start Broadcast";
     document.getElementById("start").disabled = false;
     document.getElementById("start").style.backgroundColor = "#3b71ca";
@@ -655,7 +659,7 @@ const socketEventListener = () => {
           "viewers-count"
         )[0].innerText = `0 watching`;
       });
-  }, 5000);
+  }, 2000);
   // document.getElementById("viewsSection").style.display = "block";
   channelConnection.onmessage = async event => {
     // get_stream_information(
@@ -1506,6 +1510,10 @@ const endPrivateChat = async () => {
     channel_id_private
   );
   setInterval(updateViewerInterval, 5000);
+  showPrettyModal(
+    "Stream Ended",
+    "Private Stream Ended. Public Stream Started."
+  );
 };
 const addTag = async () => {
   const tagValue = document.getElementById("tagInput");
@@ -1664,12 +1672,12 @@ const copykey = () => {
 };
 const saveNewName = async () => {
   if (document.getElementById("channel-rename-field").value.length < 1) {
-    alert("Please enter a valid name");
+    // alert("Please enter a valid name");
     return;
   }
   const newName = document.getElementById("channel-rename-field").value;
   if (newName.length > 15) {
-    alert("Please enter a name less than 15 characters");
+    // alert("Please enter a name less than 15 characters");
     return;
   }
   if (newName == document.getElementsByClassName("stream-title")[0].innerText) {
@@ -1733,7 +1741,7 @@ const renderAvailableTags = () => {
   for (let i = 0; i < tagsList.length; i++) {
     if (!selectedTags.includes(tagsList[i])) {
       const tag = document.createElement("button");
-      tag.setAttribute("class", "stream-buttons");
+      tag.setAttribute("class", "UJQCM");
       tag.style.marginRight = "2px";
       tag.style.marginBottom = "2px";
       tag.setAttribute("id", tagsList[i]);
@@ -1757,7 +1765,7 @@ const renderSelectedTags = () => {
   SelctedTagsMarkup.innerHTML = ``;
   for (let i = 0; i < selectedTags.length; i++) {
     const tag = document.createElement("button");
-    tag.setAttribute("class", "stream-buttons");
+    tag.setAttribute("class", "UJQCM");
     tag.style.marginRight = "2px";
     tag.style.marginBottom = "2px";
     tag.setAttribute("id", selectedTags[i]);
