@@ -1109,6 +1109,8 @@ const updatePrivateStreamPrice = async () => {
   );
   privateStreamPrice = newPrice;
   privateStreamViewPrice = newPriceView;
+  createMessage("Private Prices Updated");
+  showToast("Alert", "Private Prices Updated", "success");
 };
 const removeGoalInSettings = number => {
   document.getElementById(`goalContainer${number}`).remove();
@@ -1211,7 +1213,40 @@ const renderGoals = async () => {
     }
   }
 };
+const areGoalsChanged = () => {
+  let newGoals = [];
+  for (let i = 0; i < goalCount; i++) {
+    const name = document.getElementById(`name${i}`).value;
+    const amount = document.getElementById(`amount${i}`).value;
+    if (name == "" || amount == "") {
+      continue;
+    }
+    const completed =
+      document.getElementById(`completed${i}`).innerText == "Completed" ? 1 : 0;
+    newGoals.push({ name, amount, completed: completed, type: "goal" });
+  }
+  console.log({ newGoals });
+  console.log({ goals });
+  if (newGoals.length != goals.length) {
+    return true;
+  }
+  for (let i = 0; i < newGoals.length; i++) {
+    if (newGoals[i].name != goals[i].name) {
+      return true;
+    }
+    if (newGoals[i].amount != goals[i].amount) {
+      return true;
+    }
+    if (newGoals[i].completed != goals[i].completed) {
+      return true;
+    }
+  }
+  return false;
+};
 const saveAllGoals = async () => {
+  if (!areGoalsChanged()) {
+    return;
+  }
   goals = [];
   for (let i = 0; i < goalCount; i++) {
     const name = document.getElementById(`name${i}`).value;
@@ -1232,6 +1267,8 @@ const saveAllGoals = async () => {
     channel_id,
     "goals-updated"
   );
+  createMessage("Goals Updated");
+  showToast("Alert", "Goals Updated", "success");
 };
 const removeGoalFunction = el => {
   const index = el.id;
@@ -1706,6 +1743,8 @@ const saveNewName = async () => {
     }
   );
   document.getElementsByClassName("stream-title")[0].innerText = newName;
+  createMessage("Channel Name Updated");
+  showToast("Alert", "Channel Name Updated", "success");
 };
 const updateTagsInDb = async () => {
   await removeExistingTags();
@@ -1921,6 +1960,14 @@ const escapeNewlines = str => {
   return str.replace(/\n/g, "= @ _ / -");
 };
 const updateRoomRules = () => {
+  let oldRoomRules = roomRules.replace(/= @ _ \/ -/g, "\n");
+  console.log({
+    oldRoomRules,
+    newRoomRules: document.getElementById("roomRulesInput").value,
+  });
+  if (oldRoomRules == document.getElementById("roomRulesInput").value) {
+    return;
+  }
   const roomRulesInput = document.getElementById("roomRulesInput");
   roomRules = roomRulesInput.value;
   console.log(roomRules);
@@ -1932,6 +1979,8 @@ const updateRoomRules = () => {
     channel_id,
     escapedRoomRules
   );
+  createMessage("Room Rules Updated");
+  showToast("Alert", "Room Rules Updated", "success");
 };
 const updateChannelDescription = () => {
   const channelDescription = document.getElementById("channel-description");
@@ -1957,6 +2006,8 @@ const updateChannelDescription = () => {
       description: channelDescription.value,
     }
   );
+  createMessage("Channel Description Updated");
+  showToast("Alert", "Channel Description Updated", "success");
 };
 const saveSettings = async () => {
   try {
