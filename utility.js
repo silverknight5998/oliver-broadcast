@@ -1713,10 +1713,7 @@ const saveNewName = async () => {
     return;
   }
   const newName = document.getElementById("channel-rename-field").value;
-  if (newName.length > 15) {
-    // alert("Please enter a name less than 15 characters");
-    return;
-  }
+
   if (newName == document.getElementsByClassName("stream-title")[0].innerText) {
     return;
   }
